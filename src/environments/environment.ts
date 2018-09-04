@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  ajax_dir: 'http://localhost:8500/angular/material/ngMat01/src/assets/cfm'
 };
 
 /*
