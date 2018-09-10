@@ -1,12 +1,15 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Injectable()
-export class HttpService implements OnDestroy {  
+export class HttpService implements OnDestroy { 
+  
+  subscriptionImagePath: Subject<any> = new Subject<any>();
 
   constructor(private http: HttpClient) {
 

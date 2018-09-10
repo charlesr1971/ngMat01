@@ -83,6 +83,7 @@
 		  
 		  local.ngport = 4200;
 		  local.host = ListFirst(CGI.HTTP_HOST,":");
+		  request.absoluteBaseUrl = "http://" & CGI.HTTP_HOST;
 		  if(IsLocalHost(CGI.REMOTE_ADDR)){
 			local.host = ListAppend(local.host,local.ngport,":");
 		  }

@@ -6,7 +6,7 @@
 	
 	var aQuery = "";
 	  		
-	cfdirectory(action="list",directory=arguments.path,name="local.query1",sort="Directory, Name ASC",type="all",recurse="yes");
+	cfdirectory(action="list",directory=arguments.path,name="local.query1",sort="Directory, Name ASC",type="dir",recurse="yes");
 
 	local.queryService = new query();
 	local.queryService.setDBType("query");

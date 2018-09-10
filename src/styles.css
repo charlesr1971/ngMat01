@@ -1,10 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import url('https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css');
+
+@import '~@angular/material/prebuilt-themes/pink-bluegrey.css';
 
 html, body { height: 100%; }
 body { margin: 0; font-family: 'Roboto', sans-serif; }
 
 .basic-container {
     padding: 30px;
+}
+
+.mat-toolbar.mat-primary {
+    z-index: 1;
+}
+
+.mat-dialog-actions {
+    padding-bottom: 39px !important;
 }

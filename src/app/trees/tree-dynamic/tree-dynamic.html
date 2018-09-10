@@ -1,0 +1,67 @@
+<form novalidate [formGroup]="treeForm">
+
+  <div class="form-field-container">
+
+    <div class="form-field-legend">Personal details</div>
+
+    <div class="form-field-text">
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="First Name" value="" formControlName="name" required>
+      </mat-form-field><br />
+      <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
+        First name is required and must be less than {{maxNameLength}} characters
+      </div><br />
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="Image Title" value="" formControlName="title" required>
+      </mat-form-field><br />
+      <div [hidden]="title.valid || title.pristine" class="alert alert-danger">
+        Image title is required and must be less than {{maxTitleLength}} characters
+      </div><br />
+
+    </div>
+
+  </div>
+
+  <div class="form-field-container">
+
+    <div class="form-field-legend" *ngIf="!isMobile">Please choose a category for your image</div>
+    <div class="form-field-legend" *ngIf="isMobile">Please choose a category</div>
+
+    <div class="form-field-text">
+      
+      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+          <button mat-icon-button disabled></button>
+          <!-- {{node.item}} -->
+          <a (click)="addPath($event,node.item)">{{node.item | pathFormat}}</a>
+          <mat-icon class="mat-icon-rtl-mirror grade" [attr.id]="'directory-' + (node.item | pathFormat)">
+            {{directorySelected == node.item ? 'grade' : ''}}
+          </mat-icon>
+        </mat-tree-node>
+        <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+          <button mat-icon-button
+                  [attr.aria-label]="'toggle ' + node.filename" matTreeNodeToggle>
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+          </button>
+          {{node.item | pathFormat}}
+          <mat-progress-bar *ngIf="node.isLoading"
+                            mode="indeterminate"
+                            class="tree-progress-bar"></mat-progress-bar>
+        </mat-tree-node>
+      </mat-tree>
+
+      <div class="uploaded-image-container" #uploadedImageContainer></div>
+
+      <div style="clear:both;"></div>
+
+    </div>
+
+  </div>
+
+</form>
+
+<app-upload></app-upload>
