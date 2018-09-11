@@ -1,3 +1,7 @@
+.mat-form-field {
+  width: 50%;
+}
+
 .tree-progress-bar {
   margin-left: 30px;
 }
@@ -77,6 +81,10 @@
 /* smart phones */
 
 @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+
+  .mat-form-field {
+    width: 100%;
+  }
 
   .mat-progress-bar {
     width: 35%;

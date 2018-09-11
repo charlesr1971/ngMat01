@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 @Injectable()
 export class HttpService implements OnDestroy { 
   
-  subscriptionImagePath: Subject<any> = new Subject<any>();
+  subjectImagePath: Subject<any> = new Subject<any>();
 
   constructor(private http: HttpClient) {
 
@@ -17,6 +17,15 @@ export class HttpService implements OnDestroy {
 
   fetchDirectoryTree(): Observable<any> {
     return this.http.get(environment.ajax_dir + '/tree-dynamic-category-datasource.cfm').pipe(map(
+      (res: Response) => {
+        console.log(res);
+        return res;
+      })
+    );
+  }
+
+  fetchImages(): Observable<any> {
+    return this.http.get(environment.ajax_dir + '/tree-dynamic-images-datasource.cfm').pipe(map(
       (res: Response) => {
         console.log(res);
         return res;

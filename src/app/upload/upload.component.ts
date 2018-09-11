@@ -15,7 +15,7 @@ export class UploadComponent {
 
   constructor(public dialog: MatDialog, public uploadService: UploadService,
     private httpService: HttpService) {
-      this.httpService.subscriptionImagePath.subscribe( (data: any) => {
+      this.httpService.subjectImagePath.subscribe( (data: any) => {
         console.log('upload.service: data: ',data);
         if(data['imagePath'] != '' && data['name'] != '' && data['title'] != '') {
           this.isValid = true;

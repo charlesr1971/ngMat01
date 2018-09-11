@@ -179,6 +179,8 @@ export class TreeDynamic implements OnInit {
   maxNameLength: number = 20;
   title: FormControl;
   maxTitleLength: number = 40;
+  description: FormControl;
+  maxDescriptionLength: number = 140;
   formData = {};
 
   treeControl: FlatTreeControl<DynamicFlatNode>;
@@ -226,6 +228,16 @@ export class TreeDynamic implements OnInit {
         this.formData['title'] = title;
       });
 
+      this.description.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(description => {
+        console.log("description: ",description);
+        this.formData['description'] = description;
+      });
+
       this.uploadService.subscriptionImageUrl.subscribe( (data: any) => {
         console.log('tree.dynamic: data: ',data);
         const uploadedImageContainer = this.uploadedImageContainer.nativeElement;
@@ -251,6 +263,7 @@ export class TreeDynamic implements OnInit {
   createFormControls() {
     this.name = new FormControl("", Validators.required);
     this.title = new FormControl("", Validators.required);
+    this.description = new FormControl("", Validators.required);
     this.name = new FormControl("", [
       Validators.required,
       Validators.minLength(1),
@@ -261,12 +274,18 @@ export class TreeDynamic implements OnInit {
       Validators.minLength(1),
       Validators.maxLength(this.maxTitleLength)
     ]);
+    this.description = new FormControl("", [
+      Validators.required,
+      Validators.minLength(1),
+      Validators.maxLength(this.maxDescriptionLength)
+    ]);
   }
 
   createForm() {
     this.treeForm = new FormGroup({
       name: this.name,
-      title: this.title
+      title: this.title,
+      description: this.description
     });
   }
 
@@ -281,7 +300,7 @@ export class TreeDynamic implements OnInit {
     console.log('addPath: item: ',item);
     this.imagePath = item;
     this.formData['imagePath'] = this.imagePath;
-    this.httpService.subscriptionImagePath.next(this.formData);
+    this.httpService.subjectImagePath.next(this.formData);
     this.directorySelected = this.imagePath;
     const gradeEl = document.getElementById('directory-' + this.pathFormat(this.imagePath));
     console.log('addPath: gradeEl: ',gradeEl);

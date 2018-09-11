@@ -16,16 +16,18 @@ export class UploadService {
   imagePath: string;
   name: string;
   title: string;
+  description: string;
 
   subscriptionImageUrl: Subject<any> = new Subject<any>();
 
   constructor(private http: HttpClient, 
     private httpService: HttpService) {
-      this.httpService.subscriptionImagePath.subscribe( (data: any) => {
+      this.httpService.subjectImagePath.subscribe( (data: any) => {
         console.log('upload.service: data: ',data);
         this.imagePath = data['imagePath'];
         this.name = data['name'];
         this.title = data['title'];
+        this.description = data['description'];
       });
     }
 
@@ -49,6 +51,7 @@ export class UploadService {
           'Image-path':  this.imagePath,
           'Name': this.name,
           'Title': this.title,
+          'Description': this.description,
           'File-Extension': fileExtension
         })
       };

@@ -1,12 +1,13 @@
 <cfscript>
 
-  public query function ParseDirectory(required string path) output="true" {
+
+  public query function ParseDirectory(required string path, string type = "dir") output="true" {
 	  
 	var local = {};
 	
 	var aQuery = "";
 	  		
-	cfdirectory(action="list",directory=arguments.path,name="local.query1",sort="Directory, Name ASC",type="dir",recurse="yes");
+	cfdirectory(action="list",directory=arguments.path,name="local.query1",sort="Directory, Name ASC",type=arguments.type,recurse="yes");
 
 	local.queryService = new query();
 	local.queryService.setDBType("query");
@@ -69,9 +70,7 @@
 		}
 	  }
 	}
-	
-	//WriteDump(var=local.query2);
-	
+		
 	return local.query2;
 	
   }
@@ -131,7 +130,6 @@
 			  ArrayAppend(local.directories,local.nestedDirectories);
 			}
 		}
-		//['Fruits', ['Apple', 'Orange', 'Banana']],
 		local.directories = ConvertDirectoryQueryToArray(query=arguments.query,parentId=local.row.Id,directories=local.directories,nestedDirectories=local.nestedDirectories,parents=local.parents);
 	  }
 	}
@@ -166,7 +164,6 @@
 		  if(IsSimpleValue(local.directories[local.index]) AND ArrayIsDefined(local.directories,local.index + 1) AND IsArray(local.directories[local.index + 1])){
 			local.struct = {};
 			StructInsert(local.struct,local.directories[local.index],local.directories[local.index + 1]);
-			//local.struct[local.directories[local.index]] = local.directories[local.index + 1];
 			ArrayAppend(local.temp,local.struct);
 		  }
 		  
@@ -175,14 +172,9 @@
 		
 	  }
 	  else{
-		  
-		/*local.temp = ArrayNew(1);
-		ArrayAppend(local.temp,local.directories);
-		local.directories = local.temp;*/
 		
 		local.array = ArrayNew(1);
 		  
-		
 		for (local.index=1;local.index LTE ArrayLen(local.directories);local.index=local.index+1) {
 		  
 		  if(IsSimpleValue(local.directories[local.index]) AND ArrayIsDefined(local.directories,local.index + 1) AND IsArray(local.directories[local.index + 1])){
@@ -198,9 +190,59 @@
 		
 	  }
 	  
-	  //WriteDump(var=local.directories);
-
 	  return local.directories;
   }
+  
+  
+  public string function CapFirst(string str = "") output="true" {
+	var local = {};
+	if(Len(arguments.str) GT 1){
+	  /*WriteOutput(arguments.str & "<br />");*/
+	  local.string = Trim(UCase(Left(arguments.str,1)) & LCase(Right(arguments.str,Len(arguments.str)-1)));
+	}
+	else{
+	  local.string = Trim(UCase(Left(arguments.str,1)));
+	}
+	return local.string;
+  }
+  
+  
+  public string function CapFirstAll(string str = "") output="true" {
+	  
+	var local = {};
+	local.string = "";
+	
+	for(local.i = 1; local.i LTE ListLen(arguments.str," "); local.i = local.i + 1){
+	  local.item = ListGetAt(arguments.str,local.i," ");
+	  local.string = local.string & " " & CapFirst(local.item);
+	}
+	
+	return local.string;
+	
+  }
+  
+  
+  public string function FormatTitle(string str = "") output="true" {
+	  
+	var local = {};
+	local.wordlist = "a,amid,an,and,anti,as,at,but,by,down,for,from,in,into,like,near,nor,of,off,on,onto,or,over,past,per,plus,so,than,the,to,up,upon,via,with,yet";
+	local.wordlist = "a,aboard,about,above,across,after,against,ahead,along,amid,amidst,among,and,around,as,aside,at,athwart,atop,barring,because,before,behind,below,beneath,beside,besides,between,beyond,but,by,circa,concerning,despite,down,during,except,excluding,far,following,for,from,in,including,inside,into,like,minus,near,nor,notwithstanding,of,off,on,onto,opposite,or,out,outside,over,past,per,plus,prior,regarding,regardless,save,since,so,than,the,through,till,to,toward,towards,under,underneath,unlike,until,up,upon,versus,via,with,within,without,yet";
+	
+	local.string = CapFirstAll((Trim(arguments.str)));
+	local.string = REReplaceNoCase(local.string,"[\s]+"," ","ALL");
+	
+	for(local.i = 1; local.i LTE ListLen(local.wordlist); local.i = local.i + 1){
+	  local.string = ReplaceNoCase(local.string," " & ListGetAt(local.wordlist,local.i) & " "," " & ListGetAt(local.wordlist,local.i) & " ","ALL");
+	}
+		
+	if(ListLen(local.string," ")){
+	  local.string = ListSetAt(local.string,ListLen(local.string," "),CapFirst(ListGetAt(local.string,ListLen(local.string," ")," "))," ");
+	  local.string = ListSetAt(local.string,1,CapFirst(ListGetAt(local.string,1," "))," ");
+	}
+	
+	return local.string;
+	
+  }
+  
   
 </cfscript>

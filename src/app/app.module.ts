@@ -6,6 +6,8 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { DeviceDetectorModule } from 'ngx-device-detector';
 
+import { ImageLazyLoadModule } from './image-lazy-load/image-lazy-load.module';
+
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MyNavComponent } from './my-nav/my-nav.component';
@@ -28,6 +30,8 @@ import { PathFormatPipe } from './pipes/path-format/path-format.pipe';
 import { UploadModule } from './upload/upload.module';
 
 import { DialogComponent } from './upload/dialog/dialog.component';
+import { ImagesComponent } from './images/images.component';
+import { ImageComponent } from './image/image.component';
 
 const appRoutes: Routes = [
   { path: 'first-page', component: FirstPageComponent },
@@ -45,7 +49,9 @@ const appRoutes: Routes = [
     SecondPageComponent,
     ThirdPageComponent,
     TreeDynamic,
-    PathFormatPipe
+    PathFormatPipe,
+    ImagesComponent,
+    ImageComponent
   ],
   imports: [
     BrowserModule,
@@ -71,7 +77,8 @@ const appRoutes: Routes = [
     MatInputModule,
     FormsModule, 
     ReactiveFormsModule,
-    DeviceDetectorModule.forRoot()
+    DeviceDetectorModule.forRoot(),
+    ImageLazyLoadModule
   ],
   entryComponents: [DialogComponent], // Add the DialogComponent as entry component
   providers: [
