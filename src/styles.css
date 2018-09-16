@@ -1,8 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import url('https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css');
-
 @import '~@angular/material/prebuilt-themes/pink-bluegrey.css';
+@import '~angular2-lightbox/lightbox.css';
+@import '~@ngx-share/button/styles/share-buttons.css';
+@import '~@ngx-share/button/styles/themes/default/default-theme.css';
 
 html, body { height: 100%; }
 body { margin: 0; font-family: 'Roboto', sans-serif; }

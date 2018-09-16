@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-
+import { Component, OnInit, OnDestroy, Input, Inject } from '@angular/core';
 import { Observable, Subscription, Subject } from 'rxjs';
+import { DOCUMENT } from '@angular/common';
 
 import { HttpService } from '../services/http/http.service';
-
 import { Image } from './../image/image.model';
 
 @Component({
@@ -16,46 +15,34 @@ export class ImagesComponent implements OnInit {
   images = [];
   subjectImages: Subject<any> = new Subject<any>();
 
-  //images: Observable<Image[]>;
-
-  //@Input() images: any[];
-
-  /* images: any[] = [
-    {
-      "name": "Douglas  Pace"
-    },
-    {
-      "name": "Mcleod  Mueller"
-    },
-    {
-      "name": "Day  Meyers"
-    },
-    {
-      "name": "Aguirre  Ellis"
-    },
-    {
-      "name": "Cook  Tyson"
-    }
-  ]; */
-
   http: Subscription;
 
-  constructor(private httpService: HttpService) { 
-    
+  constructor(private httpService: HttpService,
+    @Inject(DOCUMENT) document) { 
+      
   }
 
   fetchData() {
     this.http = this.httpService.fetchImages().subscribe( (data: any) => {
-      console.log(data);
+      console.log("images.component: fetchData(): data ",data);
       data.map( (item: any) => {
         const image = new Image({
+          id: item['fileUuid'],
           category: item['category'],
           src: item['src'],
           author: item['author'],
           title: item['title'],
-          description: item['description']
+          description: item['description'],
+          size: item['size'],
+          likes: item['likes'],
+          userToken: item['userToken'],
+          createdAt: item['createdAt']
         });
         this.images.push(image);
+      });
+      this.images.sort(function(a, b) {
+          const dateA: any = new Date(a.createdAt), dateB: any = new Date(b.createdAt);
+          return dateB - dateA;
       });
       console.log("this.images: ", this.images);
       this.subjectImages.next(this.images);

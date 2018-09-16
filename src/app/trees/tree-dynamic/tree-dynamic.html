@@ -34,6 +34,9 @@
     <div class="form-field-legend" *ngIf="isMobile">Please choose a category</div>
 
     <div class="form-field-text">
+
+        <div [hidden]="!hasError" class="alert alert-danger" [innerHtml]="safeHtml">
+        </div>
       
       <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>

@@ -21,32 +21,37 @@
 	  <cfif IsArray(directoryData[key])>
         <cfloop from="1" to="#ArrayLen(directoryData[key])#" index="ii">
 		  <cfset directory = directoryData[key][ii]>
-          <cfif Len(Trim(directory)) AND FindNoCase(".",ListLast(directory,"\")) AND FindNoCase("_",ListLast(directory,"\"))>
+          <cfif Len(Trim(directory)) AND FindNoCase(".",ListLast(directory,"\"))>
             <cfset data = StructNew()>
             <cfset data['category'] = ListLast(key,"\")>
             <cfset src = Trim(REReplaceNoCase(directory,"[\\]+","/","ALL"))>
             <cfset data['src'] = uploadfolder & src>
             <cfset filename = ListLast(src,"/")>
             <cfset filenameWithoutExtension = ListFirst(filename,".")>
-            <cfset author = Trim(ListFirst(filenameWithoutExtension,"_"))>
-            <cfset author = REReplaceNoCase(author,"[\s]+"," ","ALL")>
-            <cfset author = REReplaceNoCase(author,"-"," ","ALL")>
-            <cfset data['author'] = FormatTitle(author)>
-            <cfset title = Trim(ListGetAt(filenameWithoutExtension,2,"_"))>
-            <cfset title = REReplaceNoCase(title,"[\s]+"," ","ALL")>
-            <cfset title = REReplaceNoCase(title,"-"," ","ALL")>
-            <cfset data['title'] = FormatTitle(title)>
-            <cfset fileid = "">
-            <cfif ListLen(filenameWithoutExtension,"_") GT 2>
-			  <cfset fileid = Trim(ListGetAt(filenameWithoutExtension,3,"_"))>
-            </cfif>
+            <cfset fileid = filenameWithoutExtension>
+            <cfset data['fileUuid'] =  LCase(fileid)>
+            <cfset data['author'] = "">
+            <cfset data['title'] = "">
             <cfset data['description'] = "">
+            <cfset data['size'] = 0>
+            <cfset data['userToken'] = "">
+            <cfset data['createdAt'] = Now()>
             <cfif Trim(Len(fileid))>
-			  <cfset descriptionSystemPath = request.filepath & "/image-descriptions">
-              <cflock name="read_file_#timestamp#" type="exclusive" timeout="30">
-                <cffile action="read" file="#descriptionSystemPath#/#filenameWithoutExtension#.txt" variable="description" />
-              </cflock>
-              <cfset data['description'] = description>
+              <CFQUERY NAME="qGetFile" DATASOURCE="#request.domain_dsn#">
+                SELECT * 
+                FROM tblFile
+                WHERE File_uuid = <cfqueryparam cfsqltype="cf_sql_varchar" value="#fileid#">
+              </CFQUERY>
+              <cfif qGetFile.RecordCount>
+				<cfset data['fileUuid'] = LCase(fileid)>
+				<cfset data['author'] = FormatTitle(qGetFile.Author)>
+				<cfset data['title'] = FormatTitle(qGetFile.Title)>
+				<cfset data['description'] = qGetFile.Description>
+                <cfset data['size'] = qGetFile.Size>
+                <cfset data['likes'] = qGetFile.Likes>
+                <cfset data['userToken'] = qGetFile.User_token>
+                <cfset data['createdAt'] = qGetFile.Submission_date>
+              </cfif>
             </cfif>
             <cfset ArrayAppend(temp,data)>
           </cfif>

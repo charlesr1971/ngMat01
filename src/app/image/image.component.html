@@ -7,17 +7,59 @@
         <mat-card-subtitle>{{ image.author }}</mat-card-subtitle>
       </div>
     </mat-card-header>
-    <img appLazyLoad mat-card-image src="{{ image.src }}" alt="{{ image.title }}" />
+    <div class="image-category">
+        {{ image.category | titlecase }}
+    </div>
+    <div class="image-container">
+      <!-- <img appLazyLoad mat-card-image src="{{ image.src }}" alt="{{ image.title }}" (click)="openFile(image.id)" id="{{ image.id }}" /> -->
+      <!-- <a href="{{ image.src }}">
+        <img mat-card-image src="{{ image.src }}" alt="{{ image.title }}" />
+      </a> -->
+      <img appLazyLoad mat-card-image src="{{ image.src }}" alt="{{ image.title }}" (click)="openFile(image.src)" />
+    </div>
+    <div class="image-data">
+      <div class="image-created-at">
+        {{ image.createdAt | date:'mediumDate' }}
+      </div>
+      <div class="image-size">
+        {{ image.size | fileSize | number:'1.2-2' }} MB
+      </div>
+      <div style="clear:both;"></div>
+    </div>
     <mat-card-content>
       <p>
-        <!-- The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-        A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-        bred for hunting. -->
         {{ image.description }}
       </p>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
+      <button mat-button (click)="addLike()">
+        {{ image.likes }}
+        <mat-icon class="mat-icon-rtl-mirror" id="favourite-{{ image.id }}" [style.color]="likeColorDefault">
+          favorite
+        </mat-icon>
+        LIKE
+      </button>
+      <button mat-button (click)="share($event,image.id)">SHARE</button>
     </mat-card-actions>
+    <!-- <share-buttons show="5"></share-buttons> -->
+    <!-- <share-buttons [theme]="'modern-dark'"
+    [include]="['facebook','twitter','google','linkedin','pinterest','reddit','tumblr','whatsapp','messenger','telegram','vk','stumble','xing','sms','email','copy','print']"
+    [exclude]="['pinterest','reddit','whatsapp','messenger','telegram','vk','stumble','xing','sms','print']"
+    [show]="5"
+    [url]="'https://twitter.com/'"
+    [autoSetMeta]="false"
+    ></share-buttons> -->
+    <!-- <button mat-fab shareButton="facebook" [style.backgroundColor]="share.prop.facebook.color">
+      <fa-icon [icon]="share.prop.facebook.icon" size="lg"></fa-icon>
+    </button> -->
+    <!-- <div class="social-media-container" id="social-media-{{ image.id }}" [ngStyle]="{'display': state === 'out' ? 'none' : 'block'}" [@fadeInOutAnimation]> -->
+    <div class="social-media-container" id="social-media-{{ image.id }}" [@fadeInOutAnimation]="{value: state}">
+      <mat-icon class="mat-icon-rtl-mirror close" id="close-{{ image.id }}"  (click)="share($event,image.id)">
+        clear
+      </mat-icon>
+      <share-button button="facebook" [icon]="fbIcon"></share-button>
+      <share-button button="twitter" [icon]="tweetIcon"></share-button>
+      <share-button button="tumblr" [icon]="tbrIcon"></share-button>
+      <!-- <share-button button="linkedin" [icon]="linkedinInIcon"></share-button> -->
+    </div>
   </mat-card>

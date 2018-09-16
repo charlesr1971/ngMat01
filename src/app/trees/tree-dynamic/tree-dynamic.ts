@@ -8,6 +8,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { DOCUMENT } from '@angular/common'; 
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { CookieService } from 'ngx-cookie-service';
 
 import { HttpService } from '../../services/http/http.service';
 import { UploadService } from '../../upload/upload.service';
@@ -189,6 +191,11 @@ export class TreeDynamic implements OnInit {
   isExpandable = (node: DynamicFlatNode) => node.expandable;
   hasChild = (_: number, _nodeData: DynamicFlatNode) => _nodeData.expandable;
   isMobile: boolean = false;
+  hasError: boolean = false;
+
+  private userToken: string = '';
+
+  safeHtml: SafeHtml;
 
   constructor(@Inject(DOCUMENT) document, 
     database: DynamicDatabase, 
@@ -197,7 +204,9 @@ export class TreeDynamic implements OnInit {
     private uploadService: UploadService,
     private renderer: Renderer2,
     public el: ElementRef,
-    private deviceDetectorService: DeviceDetectorService
+    private deviceDetectorService: DeviceDetectorService,
+    private sanitizer: DomSanitizer,
+    private cookieService: CookieService
     ) {
     this.treeControl = new FlatTreeControl<DynamicFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new DynamicDataSource(this.treeControl, database);
@@ -238,6 +247,11 @@ export class TreeDynamic implements OnInit {
         this.formData['description'] = description;
       });
 
+      this.uploadService.subscriptionImageError.subscribe( (data: any) => {
+        console.log("tree-dynamic: subscriptionImageError: data", data);
+        this.toggleError(data);
+      });
+
       this.uploadService.subscriptionImageUrl.subscribe( (data: any) => {
         console.log('tree.dynamic: data: ',data);
         const uploadedImageContainer = this.uploadedImageContainer.nativeElement;
@@ -258,6 +272,17 @@ export class TreeDynamic implements OnInit {
         uploadedImageContainer.html(img); */
       });
 
+      if(this.cookieService.check('userToken')) {
+        this.userToken = this.cookieService.get( 'userToken' );
+      }
+
+      console.log('this.userToken',this.userToken);
+
+  }
+
+  toggleError(error: string) {
+    this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(error);
+    this.hasError = error != '' ? true : false;
   }
 
   createFormControls() {
@@ -300,21 +325,13 @@ export class TreeDynamic implements OnInit {
     console.log('addPath: item: ',item);
     this.imagePath = item;
     this.formData['imagePath'] = this.imagePath;
+    this.formData['userToken'] = this.userToken;
     this.httpService.subjectImagePath.next(this.formData);
     this.directorySelected = this.imagePath;
     const gradeEl = document.getElementById('directory-' + this.pathFormat(this.imagePath));
     console.log('addPath: gradeEl: ',gradeEl);
     TweenMax.fromTo(gradeEl, 1, {scale:0, ease:Elastic.easeOut, opacity: 0, rotation: 1}, {scale:1, ease:Elastic.easeOut, opacity: 1, rotation: 359});
   }
-
-  /* onFileChanged(event) {
-    this.selectedFile = event.target.files[0];
-    console.log('onFileChanged: this.selectedFile: ',this.selectedFile);
-  }
-
-  onUpload() {
-    // upload code goes here
-  } */
 
   previewImage(event) {
     this.selectedFile = event.target.files[0];
@@ -330,9 +347,12 @@ export class TreeDynamic implements OnInit {
     const httpOptions = {
       headers: new HttpHeaders({
         'Image-path':  this.imagePath,
-        'File-Extension': fileExtension
+        'File-Extension': fileExtension,
+        'User-Token': this.userToken
       })
     };
+
+    console.log('onUpload: httpOptions: ',httpOptions);
 
     this.http.post(environment.ajax_dir + '/upload-image.cfm', this.selectedFile, httpOptions).pipe(map(
       (res: Response) => {

@@ -3,40 +3,35 @@
 
 		this.name = hash( getCurrentTemplatePath() );
 		this.applicationTimeout = CreateTimeSpan( 2, 0, 0, 0 );
+		this.clientManagement = true;
+		this.clientStorage = "registry";
+		this.setClientCookies = true;
+		this.sessionManagement = true;
+		this.sessionTimeout = CreateTimeSpan(0,1,0,0);
+		this.setDomainCookies = false;
 		
 		this.currentTemplatePathDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
 		this.mappings = {
 		  "/components" = this.currentTemplatePathDirectory & "components\"
 		};
-		
-		/*
-		
-		Uncomment the following code to take advantage of Coldfusion 10+ 'this.javasettings'.
-		The load path works within its default installation, but if you move the '.jar' file or change the directory structure within the web root, you will need to refactor the load path.
-		Please remember to restart the Coldfusion Application Server, after uncommenting the code below.
-				
-		*/
 
-		/*
-		
-		this.javaSettings = { 
-		  loadPaths = [".\assets\core\lib\chamika-jwt-sign-encrypt\chamika-jwt-sign-encrypt-1.0.8.jar"]
-		};
-		
-		*/
-
-		function onApplicationStart(){
+		function onApplicationStart() {
 
 		  return true;
 		  
 		}
 
-		function onRequestStart( targetpath ){
+		function onSessionStart() {
+		}		
+
+		function onRequestStart( targetpath ) {
 			
 		  if( StructKeyExists( url, "appreload" ) ){
 			OnApplicationStart();
 			this.applicationTimeout = CreateTimeSpan( 0, 0, 0, 1 );
 		  }
+		  
+		  request.domain_dsn = "ng-gallery";
 
 		  request.crptographyencoding = "Hex";
 		  request.crptographyalgorithm = "AES";
@@ -80,7 +75,6 @@
 			
 		  }
 		  
-		  
 		  local.ngport = 4200;
 		  local.host = ListFirst(CGI.HTTP_HOST,":");
 		  request.absoluteBaseUrl = "http://" & CGI.HTTP_HOST;
@@ -91,6 +85,22 @@
 		  		  
 		  return true;
 		  
+		}
+		
+		function onRequest( string targetPage ) {
+		  include arguments.targetPage;
+		}
+		
+		function onRequestEnd() {
+		}
+		
+		function onSessionEnd( struct SessionScope, struct ApplicationScope ) {
+		}
+		
+		function onApplicationEnd( struct ApplicationScope ) {
+		}
+		
+		function onError( any Exception, string EventName ) {
 		}
 
 	</cfscript>

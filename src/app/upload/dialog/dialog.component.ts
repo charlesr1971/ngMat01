@@ -13,9 +13,16 @@ export class DialogComponent implements OnInit {
   
   public files: Set<File> = new Set();
 
-  constructor(public dialogRef: MatDialogRef<DialogComponent>, public uploadService: UploadService) {}
+  constructor(public dialogRef: MatDialogRef<DialogComponent>, public uploadService: UploadService) {
 
-  ngOnInit() {}
+  }
+
+  ngOnInit() {
+    this.uploadService.subscriptionImageError.subscribe( (data: any) => {
+      console.log("dialog.component: subscriptionImageError: data", data);
+      this.dialogRef.close();
+    });
+  }
 
   progress;
   canBeClosed = true; 

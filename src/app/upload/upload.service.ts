@@ -17,7 +17,9 @@ export class UploadService {
   name: string;
   title: string;
   description: string;
+  userToken: string = '';
 
+  subscriptionImageError: Subject<any> = new Subject<any>();
   subscriptionImageUrl: Subject<any> = new Subject<any>();
 
   constructor(private http: HttpClient, 
@@ -28,6 +30,7 @@ export class UploadService {
         this.name = data['name'];
         this.title = data['title'];
         this.description = data['description'];
+        this.userToken = data['userToken'];
       });
     }
 
@@ -48,11 +51,13 @@ export class UploadService {
       const httpOptions = {
         reportProgress: true,
         headers: new HttpHeaders({
-          'Image-path':  this.imagePath,
+          'File-Name':  file.name,
+          'Image-Path':  this.imagePath,
           'Name': this.name,
           'Title': this.title,
           'Description': this.description,
-          'File-Extension': fileExtension
+          'File-Extension': fileExtension,
+          'User-Token': this.userToken
         })
       };
 
@@ -82,8 +87,14 @@ export class UploadService {
           // Close the progress-stream if we get an answer form the API
           // The upload is complete
           console.log('upload: event ',event);
-          if('imagePath' in event.body && event.body['imagePath'] != '') {
-            this.subscriptionImageUrl.next(event.body['imagePath']);
+
+          if('error' in event.body && event.body['error'] != '') {
+            this.subscriptionImageError.next(event.body['error']);
+          }
+          else{
+            if('imagePath' in event.body && event.body['imagePath'] != '') {
+              this.subscriptionImageUrl.next(event.body['imagePath']);
+            }
           }
 
           progress.complete();
