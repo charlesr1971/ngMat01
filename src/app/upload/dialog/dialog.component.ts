@@ -9,27 +9,33 @@ import { forkJoin } from 'rxjs/observable/forkJoin';
   styleUrls: ['./dialog.component.css']
 })
 export class DialogComponent implements OnInit {
+
   @ViewChild('file') file;
   
   public files: Set<File> = new Set();
-
-  constructor(public dialogRef: MatDialogRef<DialogComponent>, public uploadService: UploadService) {
-
-  }
-
-  ngOnInit() {
-    this.uploadService.subscriptionImageError.subscribe( (data: any) => {
-      console.log("dialog.component: subscriptionImageError: data", data);
-      this.dialogRef.close();
-    });
-  }
-
   progress;
   canBeClosed = true; 
   primaryButtonText = 'Upload';
   showCancelButton = true; 
   uploading = false;
   uploadSuccessful = false;
+
+  debug: boolean = false;
+
+  constructor(public dialogRef: MatDialogRef<DialogComponent>, public uploadService: UploadService) {
+
+  }
+
+  ngOnInit() {
+
+    this.uploadService.subscriptionImageError.subscribe( (data: any) => {
+      if(this.debug) {
+        console.log('dialog.component: subscriptionImageError: data', data);
+      }
+      this.dialogRef.close();
+    });
+    
+  }
 
   onFilesAdded() {
     const files: { [key: string]: File } = this.file.nativeElement.files;

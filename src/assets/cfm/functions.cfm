@@ -15,7 +15,7 @@
 	local.objQueryResult = local.queryService.execute(sql="SELECT Directory, Name FROM sourceQuery");
 	local.queryResult1 = local.objQueryResult.getResult();
 	
-	local.query2 = QueryNew("Id,ParentId,Directory,Name");	
+	local.query2 = QueryNew("Id,ParentId,Directory,Name,GroupId");	
 	
 	if(local.queryResult1.RecordCount){
 	  for(local.row in local.queryResult1){
@@ -24,6 +24,7 @@
 		QuerySetCell(local.query2,"ParentId","");
 		QuerySetCell(local.query2,"Directory",local.row.Directory);
 		QuerySetCell(local.query2,"Name",local.row.Name);
+		QuerySetCell(local.query2,"GroupId","");
 	  }
 	}
 	
@@ -50,6 +51,7 @@
 		QuerySetCell(local.query2,"ParentId",0);
 		QuerySetCell(local.query2,"Directory",local.queryResult3.Directory);
 		QuerySetCell(local.query2,"Name","");
+		QuerySetCell(local.query2,"GroupId",0);
 		local.maxid = maxid + 1;
 	  }
 	}
@@ -66,9 +68,18 @@
 		for(local.rowChild in local.query2){
 		  if(CompareNoCase(local.rowParent.Directory,local.rowChild.Directory) EQ 0 AND local.rowChild.ParentId NEQ 0){
 			local.query2['ParentId'][local.query2.CurrentRow] = local.rowParent.Id;
+			local.query2['GroupId'][local.query2.CurrentRow] = local.rowParent.Id;
 		  }
 		}
 	  }
+	  for(local.rowParent in local.queryResult4){
+		for(local.rowChild in local.query2){
+		  if(CompareNoCase(local.rowParent.Directory,local.rowChild.Directory) EQ 0 AND local.rowChild.ParentId EQ 0){
+			local.query2['GroupId'][local.query2.CurrentRow] = local.rowParent.Id;
+		  }
+		}
+	  }
+	  
 	}
 		
 	return local.query2;

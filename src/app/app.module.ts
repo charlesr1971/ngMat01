@@ -8,7 +8,7 @@ import { LightboxModule } from 'angular2-lightbox';
 import { UploadModule } from './upload/upload.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
-import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule, MatGridListModule, MatCardModule, MatMenuModule, MatTableModule, MatPaginatorModule, MatSortModule, MatTreeModule, MatProgressBarModule, MatInputModule } from '@angular/material';
+import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule, MatGridListModule, MatCardModule, MatMenuModule, MatTableModule, MatPaginatorModule, MatSortModule, MatTreeModule, MatProgressBarModule, MatInputModule, MatSelectModule } from '@angular/material';
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 //import { ShareModule } from '@ngx-share/core';
@@ -26,11 +26,13 @@ import { ImagesComponent } from './images/images.component';
 import { ImageComponent } from './image/image.component';
 
 import { HttpService } from './services/http/http.service';
+import { UtilsService } from './services/utils/utils.service';
 import { CookieService } from 'ngx-cookie-service';
 import { RouterModule, Routes } from '@angular/router';
 import { TreeDynamic } from './trees/tree-dynamic/tree-dynamic';
 import { PathFormatPipe } from './pipes/path-format/path-format.pipe';
 import { FileSizePipe } from './pipes/file-size/file-size.pipe';
+import { InfiniteScrollerDirective } from './directives/infinite-scroller/infinite-scroller.directive';
 
 const appRoutes: Routes = [
   { path: 'first-page', component: FirstPageComponent },
@@ -51,7 +53,8 @@ const appRoutes: Routes = [
     PathFormatPipe,
     ImagesComponent,
     ImageComponent,
-    FileSizePipe
+    FileSizePipe,
+    InfiniteScrollerDirective
   ],
   imports: [
     BrowserModule,
@@ -76,6 +79,7 @@ const appRoutes: Routes = [
     MatProgressBarModule,
     UploadModule,
     MatInputModule,
+    MatSelectModule,
     FormsModule, 
     ReactiveFormsModule,
     DeviceDetectorModule.forRoot(),
@@ -88,6 +92,7 @@ const appRoutes: Routes = [
   entryComponents: [DialogComponent], // Add the DialogComponent as entry component
   providers: [
     HttpService,
+    UtilsService,
     CookieService
   ],
   bootstrap: [AppComponent]

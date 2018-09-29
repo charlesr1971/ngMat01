@@ -56,6 +56,10 @@ declare var ease, TweenMax, TimelineMax, Elastic: any;
 })
 export class ImageComponent implements OnInit {
 
+  private album: Array<any> = [];
+  private _subscription: Subscription;
+  private allowMultipleLikesPerUser: number = environment.allowMultipleLikesPerUser;
+
   @ViewChild('favourite') favourite;
 
   @Input() image: Image;
@@ -63,20 +67,12 @@ export class ImageComponent implements OnInit {
   likeColorDefault: string = '#ffffff';
   likeColor: string = '#b88be3';
   state: string = 'out';
-  //fadeInOutAnimation: boolean = false;
-
-  /* fbIcon = faFacebookSquare;
-  tbrIcon = faTumblrSquare;
-  tweetIcon = faTwitterSquare; */
-
   fbIcon = faFacebookSquare;
   tbrIcon = faTumblrSquare;
   tweetIcon = faTwitterSquare;
   linkedinInIcon = faLinkedinIn;
 
-  private album: Array<any> = [];
-  private _subscription: Subscription;
-  private allowMultipleLikesPerUser: number = environment.allowMultipleLikesPerUser;
+  debug: boolean = false;
 
   constructor(@Inject(DOCUMENT) document,
     private lightBox: Lightbox,
@@ -89,9 +85,13 @@ export class ImageComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log("this.image.id: ", this.image.id);
+    if(this.debug) {
+      console.log('this.image.id: ', this.image.id);
+    }  
     this.httpService.fetchLikes(this.image.id).subscribe( (data: any) => {
-      console.log("ngOnInit(): fetchLikes", data);
+      if(this.debug) {
+        console.log('ngOnInit(): fetchLikes', data);
+      }
       this.image.likes = data['likes'];
       if(this.image.likes) {
         this.likeColorDefault = '#b88be3';
@@ -125,7 +125,9 @@ export class ImageComponent implements OnInit {
     const userToken = this.cookieService.get('userToken').toLowerCase();
       
     this.httpService.fetchLikes(this.image.id,1,userToken,this.allowMultipleLikesPerUser).subscribe( (data: any) => {
-      console.log("addLike(): fetchLikes", data);
+      if(this.debug) {
+        console.log('addLike(): fetchLikes', data);
+      }
       if(data['error'] == '') {
         this.image.likes = this.image.likes + 1;
 
@@ -151,7 +153,9 @@ export class ImageComponent implements OnInit {
 
   open(): void {
     // register your subscription and callback whe open lightbox is fired
-    console.log("LIGHTBOX: open");
+    if(this.debug) {
+      console.log('LIGHTBOX: open');
+    }
     this._subscription = this.lightboxEvent.lightboxEvent$
       .subscribe(event => this._onReceivedEvent(event));
   }
@@ -160,19 +164,27 @@ export class ImageComponent implements OnInit {
     // remember to unsubscribe the event when lightbox is closed
     if (event.id === LIGHTBOX_EVENT.CLOSE) {
       // event CLOSED is fired
-      console.log("LIGHTBOX_EVENT.CLOSE");
+      if(this.debug) {
+        console.log('LIGHTBOX_EVENT.CLOSE');
+      }
       this._subscription.unsubscribe();
     }
  
     if (event.id === LIGHTBOX_EVENT.OPEN) {
-      console.log("LIGHTBOX_EVENT.OPEN");
+      if(this.debug) {
+        console.log('LIGHTBOX_EVENT.OPEN');
+      }
       // event OPEN is fired
     }
  
     if (event.id === LIGHTBOX_EVENT.CHANGE_PAGE) {
-      console.log("LIGHTBOX_EVENT.CHANGE_PAGE");
+      if(this.debug) {
+        console.log('LIGHTBOX_EVENT.CHANGE_PAGE');
+      }
       // event change page is fired
-      console.log(event.data); // -> image index that lightbox is switched to
+      if(this.debug) {
+        console.log(event.data);
+      }
     }
   }
 

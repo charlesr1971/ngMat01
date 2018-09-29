@@ -1,6 +1,6 @@
 import {CollectionViewer, SelectionChange} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
-import {Component, Injectable, OnInit, Inject, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import {Component, Injectable, OnInit, OnDestroy, Inject, ElementRef, ViewChild, Renderer2 } from '@angular/core';
 import {BehaviorSubject, merge, Observable, Subject} from 'rxjs';
 import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 import {map} from 'rxjs/operators';
@@ -19,6 +19,7 @@ import { environment } from '../../../environments/environment';
 declare var ease, TweenMax, Elastic: any;
 
 /** Flat node with expandable and level information */
+
 export class DynamicFlatNode {
   constructor(public item: string, public level = 1, public expandable = false,
               public isLoading = false, public alias: string) {}
@@ -28,27 +29,16 @@ export class DynamicFlatNode {
  * Database for dynamic data. When expanding a node in the tree, the data source will need to fetch
  * the descendants data from the database.
  */
+
 @Injectable()
 export class DynamicDatabase  {
 
-  
-  
-  /* dataMap = new Map<string, string[]>([
-    ['Fruits', ['Apple', 'Orange', 'Banana']],
-    ['Vegetables', ['Tomato', 'Potato', 'Onion']],
-    ['Apple', ['Fuji', 'Macintosh']],
-    ['Onion', ['Yellow', 'White', 'Purple']]
-  ]); */
-
   dataMap = new Map<string, string[]>();
-
-  //rootLevelNodes: string[] = ['Fruits', 'Vegetables'];
-
   rootLevelNodes: string[] = ['//categories//objects', '//categories//nature', '//categories//other'];
-
   http: Observable<any>;
-
   httpService;
+
+  debug: boolean = false;
 
   constructor(httpService: HttpService) {
     
@@ -60,7 +50,9 @@ export class DynamicDatabase  {
   fetchData() {
     this.http = this.httpService.fetchDirectoryTree().subscribe( (data: any) => {
       this.dataMap = new Map<string, string[]>(data);
-      console.log(this.dataMap);
+      if(this.debug) {
+        console.log(this.dataMap);
+      }
     });
   }
 
@@ -71,12 +63,10 @@ export class DynamicDatabase  {
 
   getChildren(node: string): string[] | undefined {
     return this.dataMap.get(node);
-    //return this.httpService.fetchDirectoryTree().subscribe( (data: any) => { data.get(node); });
   }
 
   isExpandable(node: string): boolean {
     return this.dataMap.has(node);
-    //return this.httpService.fetchDirectoryTree().subscribe( (data: any) => { data.has(node); });
   }
 
   pathFormat(alias: string): any {
@@ -85,8 +75,8 @@ export class DynamicDatabase  {
     return last;
   }
 
-
 }
+
 /**
  * File database, it can build a tree structured Json object from string.
  * Each node in Json object represents a file or a directory. For a file, it has filename and type.
@@ -94,6 +84,7 @@ export class DynamicDatabase  {
  * The input will be a json object string, and the output is a list of `FileNode` with nested
  * structure.
  */
+
 @Injectable()
 export class DynamicDataSource {
 
@@ -120,6 +111,7 @@ export class DynamicDataSource {
   }
 
   /** Handle expand/collapse behaviors */
+
   handleTreeControl(change: SelectionChange<DynamicFlatNode>) {
     if (change.added) {
       change.added.forEach(node => this.toggleNode(node, true));
@@ -132,6 +124,7 @@ export class DynamicDataSource {
   /**
    * Toggle the node, remove from display list
    */
+
   toggleNode(node: DynamicFlatNode, expand: boolean) {
     const children = this.database.getChildren(node.item);
     const index = this.data.indexOf(node);
@@ -163,13 +156,16 @@ export class DynamicDataSource {
 /**
  * @title Tree with dynamic data
  */
+
 @Component({
   selector: 'tree-dynamic',
   templateUrl: 'tree-dynamic.html',
   styleUrls: ['tree-dynamic.css'],
   providers: [DynamicDatabase]
 })
-export class TreeDynamic implements OnInit {
+export class TreeDynamic implements OnInit, OnDestroy {
+
+  private userToken: string = '';
 
   @ViewChild('uploadedImageContainer') uploadedImageContainer;
 
@@ -192,10 +188,9 @@ export class TreeDynamic implements OnInit {
   hasChild = (_: number, _nodeData: DynamicFlatNode) => _nodeData.expandable;
   isMobile: boolean = false;
   hasError: boolean = false;
-
-  private userToken: string = '';
-
   safeHtml: SafeHtml;
+
+  debug: boolean = false;
 
   constructor(@Inject(DOCUMENT) document, 
     database: DynamicDatabase, 
@@ -208,13 +203,16 @@ export class TreeDynamic implements OnInit {
     private sanitizer: DomSanitizer,
     private cookieService: CookieService
     ) {
+
     this.treeControl = new FlatTreeControl<DynamicFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new DynamicDataSource(this.treeControl, database);
     this.dataSource.data = database.initialData();
     this.isMobile = this.deviceDetectorService.isMobile();
+
   }
 
   ngOnInit() {
+
     this.createFormControls();
     this.createForm();
     this.name.valueChanges
@@ -223,8 +221,11 @@ export class TreeDynamic implements OnInit {
         distinctUntilChanged()
       )
       .subscribe(name => {
-        console.log("name: ",name);
+        if(this.debug) {
+          console.log('name: ',name);
+        }
         this.formData['name'] = name;
+        this.httpService.subjectImagePath.next(this.formData);
       });
 
     this.title.valueChanges
@@ -233,8 +234,11 @@ export class TreeDynamic implements OnInit {
         distinctUntilChanged()
       )
       .subscribe(title => {
-        console.log("title: ",title);
+        if(this.debug) {
+          console.log('title: ',title);
+        }
         this.formData['title'] = title;
+        this.httpService.subjectImagePath.next(this.formData);
       });
 
       this.description.valueChanges
@@ -243,17 +247,24 @@ export class TreeDynamic implements OnInit {
         distinctUntilChanged()
       )
       .subscribe(description => {
-        console.log("description: ",description);
+        if(this.debug) {
+          console.log('description: ',description);
+        }
         this.formData['description'] = description;
+        this.httpService.subjectImagePath.next(this.formData);
       });
 
       this.uploadService.subscriptionImageError.subscribe( (data: any) => {
-        console.log("tree-dynamic: subscriptionImageError: data", data);
+        if(this.debug) {
+          console.log("tree-dynamic: subscriptionImageError: data", data);
+        }
         this.toggleError(data);
       });
 
       this.uploadService.subscriptionImageUrl.subscribe( (data: any) => {
-        console.log('tree.dynamic: data: ',data);
+        if(this.debug) {
+          console.log('tree.dynamic: data: ',data);
+        }
         const uploadedImageContainer = this.uploadedImageContainer.nativeElement;
         const img = this.renderer.createElement('img');
         this.renderer.setAttribute(img,'src',data);
@@ -261,12 +272,16 @@ export class TreeDynamic implements OnInit {
         const uploadedImage = document.getElementById('uploadedImage');
         if(uploadedImage) {
           this.renderer.removeChild(uploadedImageContainer,uploadedImage);
-          console.log('tree.dynamic: remove image');
+          if(this.debug) {
+            console.log('tree.dynamic: remove image');
+          }
         }
         
         this.renderer.appendChild(uploadedImageContainer,img);
         TweenMax.fromTo("#uploadedImage", 1, {scale:0, ease:Elastic.easeOut, opacity: 0}, {scale:1, ease:Elastic.easeOut, opacity: 1});
-        console.log('tree.dynamic: add image');
+        if(this.debug) {
+          console.log('tree.dynamic: add image');
+        }
         
         /* const img = '<img src="' + data + '" />';
         uploadedImageContainer.html(img); */
@@ -276,7 +291,9 @@ export class TreeDynamic implements OnInit {
         this.userToken = this.cookieService.get( 'userToken' );
       }
 
-      console.log('this.userToken',this.userToken);
+      if(this.debug) {
+        console.log('this.userToken',this.userToken);
+      }
 
   }
 
@@ -316,26 +333,30 @@ export class TreeDynamic implements OnInit {
 
   addPath(event: any, item: string): void {
     const target = event.target || event.srcElement || event.currentTarget;
-    console.log('addPath: target: ',target);
-    /* const srcAttr = target.attributes.src;
-    console.log('addPath: srcAttr: ',srcAttr);
-    const src = srcAttr.nodeValue;
-    console.log('addPath: src: ',src); */
-    console.log('addPath: item: ',item);
-    console.log('addPath: item: ',item);
+    if(this.debug) {
+      console.log('addPath: target: ',target);
+    }
+    if(this.debug) {
+      console.log('addPath: item: ',item);
+      console.log('addPath: item: ',item);
+    }
     this.imagePath = item;
     this.formData['imagePath'] = this.imagePath;
     this.formData['userToken'] = this.userToken;
     this.httpService.subjectImagePath.next(this.formData);
     this.directorySelected = this.imagePath;
     const gradeEl = document.getElementById('directory-' + this.pathFormat(this.imagePath));
-    console.log('addPath: gradeEl: ',gradeEl);
+    if(this.debug) {
+      console.log('addPath: gradeEl: ',gradeEl);
+    }
     TweenMax.fromTo(gradeEl, 1, {scale:0, ease:Elastic.easeOut, opacity: 0, rotation: 1}, {scale:1, ease:Elastic.easeOut, opacity: 1, rotation: 359});
   }
 
   previewImage(event) {
     this.selectedFile = event.target.files[0];
-    console.log('onFileChanged: this.selectedFile: ',this.selectedFile);
+    if(this.debug) {
+      console.log('onFileChanged: this.selectedFile: ',this.selectedFile);
+    }
     this.onUpload();
   }
 
@@ -352,15 +373,21 @@ export class TreeDynamic implements OnInit {
       })
     };
 
-    console.log('onUpload: httpOptions: ',httpOptions);
+    if(this.debug) {
+      console.log('onUpload: httpOptions: ',httpOptions);
+    }
 
     this.http.post(environment.ajax_dir + '/upload-image.cfm', this.selectedFile, httpOptions).pipe(map(
       (res: Response) => {
-        console.log(res);
+        if(this.debug) {
+          console.log(res);
+        }
         return res;
       })
     ).subscribe( (data: any) => {
-      console.log('onUpload: data: ',data);
+      if(this.debug) {
+        console.log('onUpload: data: ',data);
+      }
     });
 
   }
@@ -403,9 +430,8 @@ export class TreeDynamic implements OnInit {
     return str;
   }
 
+  ngOnDestroy() {
+
+  }
+
 }
-
-
-/**  Copyright 2018 Google Inc. All Rights Reserved.
-    Use of this source code is governed by an MIT-style license that
-    can be found in the LICENSE file at http://angular.io/license */

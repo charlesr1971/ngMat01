@@ -4,8 +4,11 @@ import { AfterViewInit, Directive, ElementRef, HostBinding, Input } from '@angul
   selector: 'img[appLazyLoad]'
 })
 export class LazyLoadDirective implements AfterViewInit {
+  
   @HostBinding('attr.src') srcAttr = null;
   @Input() src: string;
+
+  debug: boolean = false;
 
   constructor(private el: ElementRef) {}
 
@@ -31,7 +34,9 @@ export class LazyLoadDirective implements AfterViewInit {
 
   private loadImage() {
     this.srcAttr = this.src;
-    console.log("loadImage: this.srcAttr", this.srcAttr);
+    if(this.debug) {
+      console.log('loadImage: this.srcAttr', this.srcAttr);
+    }
   }
 
 }

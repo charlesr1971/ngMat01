@@ -1,0 +1,4 @@
+#infinite-scroller {
+    height: 100%;
+    overflow: auto !important;
+}

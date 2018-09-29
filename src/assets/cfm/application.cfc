@@ -82,6 +82,8 @@
 			local.host = ListAppend(local.host,local.ngport,":");
 		  }
 		  request.ngAccessControlAllowOrigin = "http://" & local.host;
+		  
+		  request.batch = 4;
 		  		  
 		  return true;
 		  

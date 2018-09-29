@@ -13,14 +13,20 @@ export class UploadComponent {
 
   isValid: boolean = false;
 
+  debug: boolean = false;
+
   constructor(public dialog: MatDialog, public uploadService: UploadService,
     private httpService: HttpService) {
+
       this.httpService.subjectImagePath.subscribe( (data: any) => {
-        console.log('upload.service: data: ',data);
+        if(this.debug) {
+          console.log('upload.service: data: ',data);
+        }
         if(data['imagePath'] != '' && data['name'] != '' && data['title'] != '') {
           this.isValid = true;
         }
       });
+      
     }
 
   public openUploadDialog() {

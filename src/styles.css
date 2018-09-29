@@ -9,6 +9,27 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: 'Roboto', sans-serif; }
 
+body.first-page {
+    overflow: hidden !important;
+    height: 100% !important;
+}
+
+body.first-page mat-sidenav-container {
+    overflow: hidden !important;
+    height: initial !important;
+}
+
+body.first-page mat-sidenav-content {
+    overflow: auto !important;
+    height: initial !important;
+}
+
+body.first-page app-my-nav {
+    overflow: hidden !important; 
+}
+
+
+
 .basic-container {
     padding: 30px;
 }
@@ -20,3 +41,4 @@ body { margin: 0; font-family: 'Roboto', sans-serif; }
 .mat-dialog-actions {
     padding-bottom: 39px !important;
 }
+

@@ -22,17 +22,23 @@ export class UploadService {
   subscriptionImageError: Subject<any> = new Subject<any>();
   subscriptionImageUrl: Subject<any> = new Subject<any>();
 
+  debug: boolean = false;
+
   constructor(private http: HttpClient, 
     private httpService: HttpService) {
-      this.httpService.subjectImagePath.subscribe( (data: any) => {
+
+    this.httpService.subjectImagePath.subscribe( (data: any) => {
+      if(this.debug) {
         console.log('upload.service: data: ',data);
-        this.imagePath = data['imagePath'];
-        this.name = data['name'];
-        this.title = data['title'];
-        this.description = data['description'];
-        this.userToken = data['userToken'];
-      });
-    }
+      }
+      this.imagePath = data['imagePath'];
+      this.name = data['name'];
+      this.title = data['title'];
+      this.description = data['description'];
+      this.userToken = data['userToken'];
+    });
+
+  }
 
   public upload(files: Set<File>): {[key:string]:Observable<number>} {
     // this will be the our resulting map
@@ -43,7 +49,9 @@ export class UploadService {
       const formData: FormData = new FormData();
       formData.append('file', file, file.name);
 
-      console.log('upload: file ',file);
+      if(this.debug) {
+        console.log('upload: file ',file);
+      }
 
       let fileExtension: any = file.type.split("/");
       fileExtension = Array.isArray(fileExtension) ? fileExtension[fileExtension.length-1] : "";
@@ -86,7 +94,9 @@ export class UploadService {
 
           // Close the progress-stream if we get an answer form the API
           // The upload is complete
-          console.log('upload: event ',event);
+          if(this.debug) {
+            console.log('upload: event ',event);
+          }
 
           if('error' in event.body && event.body['error'] != '') {
             this.subscriptionImageError.next(event.body['error']);
@@ -112,4 +122,5 @@ export class UploadService {
     // return the map of progress.observables
     return status;
   }
+
 }
