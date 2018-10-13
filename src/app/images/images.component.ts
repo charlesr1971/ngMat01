@@ -4,6 +4,8 @@ import { HttpService } from '../services/http/http.service';
 import { Image } from './../image/image.model';
 import { Observable } from '../../../node_modules/rxjs';
 
+import { environment } from '../../environments/environment';
+
 @Component({
   selector: 'app-images',
   templateUrl: './images.component.html',
@@ -19,11 +21,14 @@ export class ImagesComponent implements OnInit, OnDestroy {
   screenHeight: number = 0;
   screenWidth: number = 0;
   toolbarHeight: number = 64;
+  ajaxUrl: string = '';
 
   debug: boolean = false;
 
   constructor(private httpService: HttpService,
     private renderer: Renderer2) { 
+
+    this.ajaxUrl = environment.host + this.httpService.port + '/' + environment.cf_dir;
 
     this.onResize();
     this.scrollCallback = this.fetchData.bind(this);
@@ -81,7 +86,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
       const image = new Image({
         id: item['fileUuid'],
         category: item['category'],
-        src: item['src'],
+        src: this.ajaxUrl + '/' + item['src'],
         author: item['author'],
         title: item['title'],
         description: item['description'],

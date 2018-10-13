@@ -5,6 +5,8 @@
 export const environment = {
   production: false,
   ajax_dir: 'http://localhost:8500/angular/material/ngMat01/src/assets/cfm',
+  host: 'http://localhost:',
+  cf_dir: 'angular/material/ngMat01/src/assets/cfm',
   allowMultipleLikesPerUser: 0,
   title: "Photo Gallery"
 };

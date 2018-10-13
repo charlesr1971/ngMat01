@@ -68,7 +68,7 @@
 			if( Len( Trim( request.webroot ) ) ){
 				
 			  if( ListLen( request.webroot, "\" ) ){
-				request.clientdir = ListGetAt( request.webroot, ListLen( request.webroot, "\" ), "\" );
+					request.clientdir = ListGetAt( request.webroot, ListLen( request.webroot, "\" ), "\" );
 			  }
 			  
 			}
@@ -76,13 +76,17 @@
 		  }
 		  
 		  local.ngport = 4200;
-		  local.host = ListFirst(CGI.HTTP_HOST,":");
-		  request.absoluteBaseUrl = "http://" & CGI.HTTP_HOST;
+			local.host = ListFirst(CGI.HTTP_HOST,":");
+			request.cfport = 0;
+			request.absoluteBaseUrl = "http://" & CGI.HTTP_HOST;
+			request.ngAccessControlAllowOrigin = request.absoluteBaseUrl;
+			request.ngIframeSrc = request.ngAccessControlAllowOrigin & "/photo-gallery/";
 		  if(IsLocalHost(CGI.REMOTE_ADDR)){
-			local.host = ListAppend(local.host,local.ngport,":");
-		  }
-		  request.ngAccessControlAllowOrigin = "http://" & local.host;
-		  
+				local.host = ListAppend(local.host,local.ngport,":");
+				request.cfport = ListLast(CGI.HTTP_HOST,":");
+				request.ngAccessControlAllowOrigin = "http://" & local.host;
+				request.ngIframeSrc = request.ngAccessControlAllowOrigin;
+		  }		  
 		  request.batch = 4;
 		  		  
 		  return true;

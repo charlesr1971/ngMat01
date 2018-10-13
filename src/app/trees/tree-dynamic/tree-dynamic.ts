@@ -180,6 +180,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
   description: FormControl;
   maxDescriptionLength: number = 140;
   formData = {};
+  ajaxUrl: string = '';
 
   treeControl: FlatTreeControl<DynamicFlatNode>;
   dataSource: DynamicDataSource;
@@ -203,6 +204,8 @@ export class TreeDynamic implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private cookieService: CookieService
     ) {
+
+    this.ajaxUrl = environment.host + this.httpService.port + '/' + environment.cf_dir;
 
     this.treeControl = new FlatTreeControl<DynamicFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new DynamicDataSource(this.treeControl, database);
@@ -377,7 +380,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
       console.log('onUpload: httpOptions: ',httpOptions);
     }
 
-    this.http.post(environment.ajax_dir + '/upload-image.cfm', this.selectedFile, httpOptions).pipe(map(
+    this.http.post(this.ajaxUrl + '/upload-image.cfm', this.selectedFile, httpOptions).pipe(map(
       (res: Response) => {
         if(this.debug) {
           console.log(res);

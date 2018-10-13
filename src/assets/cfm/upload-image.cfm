@@ -59,7 +59,9 @@
       <cflock name="write_file_#timestamp#" type="exclusive" timeout="30">
         <cffile action="write" file="#imageSystemPath#/#fileid#.#data['fileExtension']#" output="#data['selectedFile']#" />
       </cflock>
-      <cfset data['imagePath'] = uploadfolder & imagePath & "/" & fileid & "." & data['fileExtension']>
+      <!---<cfset data['imagePath'] = uploadfolder & imagePath & "/" & fileid & "." & data['fileExtension']>--->
+      <cfset imagePath = REReplaceNoCase(imagePath,"^/","")>
+      <cfset data['imagePath'] = imagePath & "/" & fileid & "." & data['fileExtension']>
     </cfif>
     <cfset filename = fileid & "." & data['fileExtension']>
     <CFQUERY DATASOURCE="#request.domain_dsn#">

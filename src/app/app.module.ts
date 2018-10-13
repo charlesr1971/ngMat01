@@ -35,6 +35,7 @@ import { FileSizePipe } from './pipes/file-size/file-size.pipe';
 import { InfiniteScrollerDirective } from './directives/infinite-scroller/infinite-scroller.directive';
 
 const appRoutes: Routes = [
+  { path: '', component: FirstPageComponent },
   { path: 'first-page', component: FirstPageComponent },
   { path: 'second-page', component: SecondPageComponent },
   { path: 'third-page', component: ThirdPageComponent }

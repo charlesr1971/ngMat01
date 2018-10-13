@@ -28,7 +28,10 @@ export class AppComponent implements OnInit, OnDestroy {
           if(this.debug) {
             console.log((<NavigationEnd>event).url);
           }
-          this.cssClassName = this.buildCssClassName((<NavigationEnd>event).url);
+          this.cssClassName = 'first-page';
+          if((<NavigationEnd>event).url.indexOf('?') == -1){
+            this.cssClassName = this.buildCssClassName((<NavigationEnd>event).url);
+          }
           if(this.debug) {
             console.log('this.cssClassName',this.cssClassName);
           }

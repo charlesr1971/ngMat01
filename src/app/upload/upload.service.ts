@@ -8,7 +8,7 @@ import { HttpService } from '../services/http/http.service';
 
 import { environment } from '../../environments/environment';
 
-const url = environment.ajax_dir + '/upload-image.cfm';
+//const url = environment.host + this.httpService.port + '/' + environment.cf_dir + '/upload-image.cfm';
 
 @Injectable()
 export class UploadService {
@@ -18,6 +18,7 @@ export class UploadService {
   title: string;
   description: string;
   userToken: string = '';
+  ajaxUrl: string = '';
 
   subscriptionImageError: Subject<any> = new Subject<any>();
   subscriptionImageUrl: Subject<any> = new Subject<any>();
@@ -26,6 +27,8 @@ export class UploadService {
 
   constructor(private http: HttpClient, 
     private httpService: HttpService) {
+
+    this.ajaxUrl = environment.host + this.httpService.port + '/' + environment.cf_dir;
 
     this.httpService.subjectImagePath.subscribe( (data: any) => {
       if(this.debug) {
@@ -71,11 +74,8 @@ export class UploadService {
 
       // create a http-post request and pass the form
       // tell it to report the upload progress
-      /* const req = new HttpRequest('POST', url, formData, {
-        reportProgress: true
-      }); */
 
-      const req = new HttpRequest('POST', url, file, httpOptions);
+      const req = new HttpRequest('POST', this.ajaxUrl + '/upload-image.cfm', file, httpOptions);
 
       // create a new progress-subject for every file
       const progress = new Subject<number>();
@@ -103,7 +103,7 @@ export class UploadService {
           }
           else{
             if('imagePath' in event.body && event.body['imagePath'] != '') {
-              this.subscriptionImageUrl.next(event.body['imagePath']);
+              this.subscriptionImageUrl.next(this.ajaxUrl + '/' + event.body['imagePath']);
             }
           }
 
