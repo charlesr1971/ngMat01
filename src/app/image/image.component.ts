@@ -71,6 +71,7 @@ export class ImageComponent implements OnInit {
   tbrIcon = faTumblrSquare;
   tweetIcon = faTwitterSquare;
   linkedinInIcon = faLinkedinIn;
+  likesSubscription: Subscription;
 
   debug: boolean = false;
 
@@ -88,7 +89,7 @@ export class ImageComponent implements OnInit {
     if(this.debug) {
       console.log('this.image.id: ', this.image.id);
     }  
-    this.httpService.fetchLikes(this.image.id).subscribe( (data: any) => {
+    this.likesSubscription = this.httpService.fetchLikes(this.image.id).subscribe( (data: any) => {
       if(this.debug) {
         console.log('ngOnInit(): fetchLikes', data);
       }
@@ -186,6 +187,14 @@ export class ImageComponent implements OnInit {
         console.log(event.data);
       }
     }
+  }
+
+  ngOnDestroy() {
+
+    if (this.likesSubscription) {
+      this.likesSubscription.unsubscribe();
+    }
+
   }
 
 }

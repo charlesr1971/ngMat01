@@ -1,4 +1,4 @@
-<form novalidate [formGroup]="treeForm">
+<form novalidate [formGroup]="treeForm" *ngIf="userid > 0">
 
   <div class="form-field-container">
 
@@ -71,4 +71,48 @@
 
 </form>
 
-<app-upload></app-upload>
+<app-upload *ngIf="userid > 0"></app-upload>
+
+<form novalidate [formGroup]="treeForm" *ngIf="userid == 0">
+
+  <div class="form-field-container">
+
+    <div class="form-field-legend">Sign up</div>
+
+    <div class="form-field-text">
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="First Name" value="" formControlName="forename" required>
+      </mat-form-field><br />
+      <div [hidden]="forename.valid || forename.pristine" class="alert alert-danger">
+        First name is required
+      </div><br />
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="Last Name" value="" formControlName="surname" required>
+      </mat-form-field><br />
+      <div [hidden]="surname.valid || surname.pristine" class="alert alert-danger">
+        Last name is required
+      </div><br />
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="E-mail" value="" formControlName="email" type="email" required>
+      </mat-form-field><br />
+      <div [hidden]="email.valid || email.pristine" class="alert alert-danger">
+        E-mail is required
+      </div><br />
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="Password" value="" formControlName="password" type="password" required>
+      </mat-form-field><br />
+      <div [hidden]="password.valid || password.pristine" class="alert alert-danger">
+        Password is required
+      </div><br />
+
+      <button mat-raised-button (click)="signUpFormSubmit()" [disabled]="!isSignUpValid">Submit</button>
+
+    </div>
+
+  </div>
+
+</form>

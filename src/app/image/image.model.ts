@@ -1,3 +1,7 @@
+/**
+ * An image represents an image uploaded by a user
+ */
+
 import { uuid } from './../util/uuid';
 
 export class Image {
@@ -14,6 +18,7 @@ export class Image {
     createdAt: string;
 
     constructor(obj?: any) {
+
         this.id = obj && obj.id || uuid();
         this.category = obj && obj.category || null;
         this.src = obj && obj.src || null;
@@ -24,6 +29,7 @@ export class Image {
         this.likes = obj && obj.likes || 0;
         this.userToken = obj && obj.userToken || null;
         this.createdAt = obj && obj.createdAt || null;
+
     }
 
 }

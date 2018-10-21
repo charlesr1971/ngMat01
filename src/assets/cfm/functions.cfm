@@ -256,4 +256,53 @@
   }
   
   
+  public string function Encrypts(string string = "", string key = request.crptographykey, string algorithm = request.crptographyalgorithm, string encoding = request.crptographyencoding) output="false" {
+	  var result = "";
+	  if(arguments.string NEQ "" AND arguments.key NEQ "") {
+        try{
+          result = Encrypt(arguments.string,arguments.key,arguments.algorithm,arguments.encoding);
+		}
+		catch( any e ) {
+		}
+	  }
+    return result;
+  }
+
+	
+  public string function Hashed(string string = "", any object = "") output="false" {
+	var result = "";
+	if(arguments.string NEQ "") {
+	  if(ISOBJECT(arguments.object)) {
+		try{
+		  result = arguments.object.hashpw(arguments.string,arguments.object.gensalt());
+		}
+		catch( any e ) {
+		}
+	  }
+	}
+	return result;
+  }
+
+	
+  public boolean function HashMatched(string string = "", string hashed = "", any object = "") output="false" {
+	var result = false;
+	if(arguments.string NEQ "" AND arguments.hashed NEQ "") {
+	  if(ISOBJECT(arguments.object)) {
+		try{
+		  result = arguments.object.checkpw(arguments.string,arguments.hashed);
+		  if(CompareNoCase(result,"Yes") EQ 0){
+			result = true;
+		  }
+		  else{
+			result = false;
+		  }
+		}
+		catch( any e ) {
+		}
+	  }
+	}
+	return result;
+  }
+  
+  
 </cfscript>

@@ -12,7 +12,7 @@
 		
 		this.currentTemplatePathDirectory = getDirectoryFromPath( getCurrentTemplatePath() );
 		this.mappings = {
-		  "/components" = this.currentTemplatePathDirectory & "components\"
+		  "/com" = this.currentTemplatePathDirectory & "com\"
 		};
 
 		function onApplicationStart() {
@@ -35,11 +35,12 @@
 
 		  request.crptographyencoding = "Hex";
 		  request.crptographyalgorithm = "AES";
+		  request.crptographykey = generateSecretKey(request.crptographyalgorithm);
 		  request.basePathFull = this.currentTemplatePathDirectory;
 		  request.basePath = REReplaceNoCase( request.basePathFull, "\\$", "", "ALL" );
 		  request.webroot = ExpandPath( "/" );
 		  request.filepath = request.basePath;
-		  request.assetdirectory = "assets/core/";
+		  request.assetdirectory = "";
 		  request.assetdir = "";
 		  
 		  if( Len( Trim( request.assetdirectory ) ) ){
@@ -88,6 +89,31 @@
 				request.ngIframeSrc = request.ngAccessControlAllowOrigin;
 		  }		  
 		  request.batch = 4;
+		  
+		  request.lckbcryptlibinit = true;
+        
+		  if(NOT StructKeyExists(application,"bcryptlib") OR ISDEFINED('url.appreload') OR ISDEFINED('url.cfcreload')) {
+			try{
+			  cflock (name="bcryptlib", type="exclusive", timeout="30") {
+				application.jbClass = request.filepathasset & "\lib\jBCrypt-0.4";
+				application.javaloader = createObject('component','com.javaloader.JavaLoader');
+				application.javaloader.init([application.jbClass]);
+				application.bcryptlib = application.javaloader.create("BCrypt");
+			  }
+			}
+			catch( any e ) {
+			  request.lckbcryptlibinit = false;
+			}
+		  }
+		  
+		  if(request.lckbcryptlibinit) {
+			cflock (name="bcryptliblck", type="readonly", timeout="30") {
+			  request.lckbcryptlib = application.bcryptlib;
+			}
+		  }
+		  else{
+			request.lckbcryptlib = "";
+		  }
 		  		  
 		  return true;
 		  

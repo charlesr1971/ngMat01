@@ -32,6 +32,21 @@ export class HttpService implements OnInit, OnDestroy {
     
   }
 
+  fetchSignUp(formData: any): Observable<any> {
+    const body = {
+      forename: formData['forename'],
+      surname: formData['surname'],
+      email: formData['email'],
+      password: formData['password'],
+      userToken: formData['userToken']
+    };
+    const requestHeaders = new HttpHeaders().set('Content-Type', 'application/json');
+    const headers = {
+      headers: requestHeaders
+    };
+    return this.http.post(this.ajaxUrl + '/sign-up-datasource.cfm', body, headers);
+  }
+
   fetchDirectoryTree(): Observable<any> {
     return this.http.get(this.ajaxUrl + '/tree-dynamic-category-datasource.cfm');
   }

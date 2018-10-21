@@ -1,7 +1,7 @@
 import {CollectionViewer, SelectionChange} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable, OnInit, OnDestroy, Inject, ElementRef, ViewChild, Renderer2 } from '@angular/core';
-import {BehaviorSubject, merge, Observable, Subject} from 'rxjs';
+import {BehaviorSubject, merge, Observable, Subject, Subscription} from 'rxjs';
 import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 import {map} from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -13,6 +13,8 @@ import { CookieService } from 'ngx-cookie-service';
 
 import { HttpService } from '../../services/http/http.service';
 import { UploadService } from '../../upload/upload.service';
+
+import { User } from '../../user/user.model';
 
 import { environment } from '../../../environments/environment';
 
@@ -179,6 +181,12 @@ export class TreeDynamic implements OnInit, OnDestroy {
   maxTitleLength: number = 40;
   description: FormControl;
   maxDescriptionLength: number = 140;
+
+  forename: FormControl;
+  surname: FormControl;
+  email: FormControl;
+  password: FormControl;
+  
   formData = {};
   ajaxUrl: string = '';
 
@@ -190,6 +198,10 @@ export class TreeDynamic implements OnInit, OnDestroy {
   isMobile: boolean = false;
   hasError: boolean = false;
   safeHtml: SafeHtml;
+  isSignUpValid: boolean = false;
+  signupSubscription: Subscription;
+
+  userid: number = 0;
 
   debug: boolean = false;
 
@@ -218,6 +230,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
 
     this.createFormControls();
     this.createForm();
+
     this.name.valueChanges
       .pipe(
         debounceTime(400),
@@ -257,6 +270,58 @@ export class TreeDynamic implements OnInit, OnDestroy {
         this.httpService.subjectImagePath.next(this.formData);
       });
 
+      this.forename.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(forename => {
+        if(this.debug) {
+          console.log('forename: ',forename);
+        }
+        this.formData['forename'] = forename;
+        this.isSignUpValid = this.isSignUpFormValid();
+      });
+
+      this.surname.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(surname => {
+        if(this.debug) {
+          console.log('surname: ',surname);
+        }
+        this.formData['surname'] = surname;
+        this.isSignUpValid = this.isSignUpFormValid();
+      });
+
+      this.email.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(email => {
+        if(this.debug) {
+          console.log('email: ',email);
+        }
+        this.formData['email'] = email;
+        this.isSignUpValid = this.isSignUpFormValid();
+      });
+
+      this.password.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(password => {
+        if(this.debug) {
+          console.log('password: ',password);
+        }
+        this.formData['password'] = password;
+        this.isSignUpValid = this.isSignUpFormValid();
+      });
+
       this.uploadService.subscriptionImageError.subscribe( (data: any) => {
         if(this.debug) {
           console.log("tree-dynamic: subscriptionImageError: data", data);
@@ -285,9 +350,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
         if(this.debug) {
           console.log('tree.dynamic: add image');
         }
-        
-        /* const img = '<img src="' + data + '" />';
-        uploadedImageContainer.html(img); */
+
       });
 
       if(this.cookieService.check('userToken')) {
@@ -300,6 +363,26 @@ export class TreeDynamic implements OnInit, OnDestroy {
 
   }
 
+  signUpFormSubmit() {
+    const body = {
+      forename: this.forename.value,
+      surname: this.surname.value,
+      email: this.email.value,
+      password: this.password.value,
+      userToken: this.userToken
+    };
+    console.log('signUp: body',body);
+    this.signupSubscription = this.httpService.fetchSignUp(body).do(this.processSignUpData).subscribe();
+  }
+
+  private processSignUpData = (data) => {
+    console.log('processSignUpData: data',data);
+  }
+
+  isSignUpFormValid(): boolean {
+    return this.forename.value != '' && this.surname.value != '' && this.email.value != '' && this.password.value != '' ? true : false;
+  }
+
   toggleError(error: string) {
     this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(error);
     this.hasError = error != '' ? true : false;
@@ -309,29 +392,63 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.name = new FormControl("", Validators.required);
     this.title = new FormControl("", Validators.required);
     this.description = new FormControl("", Validators.required);
-    this.name = new FormControl("", [
-      Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(this.maxNameLength)
-    ]);
-    this.title = new FormControl("", [
-      Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(this.maxTitleLength)
-    ]);
-    this.description = new FormControl("", [
-      Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(this.maxDescriptionLength)
-    ]);
+    this.forename = new FormControl("", Validators.required);
+    this.surname = new FormControl("", Validators.required);
+    this.email = new FormControl("", Validators.required);
+    this.password = new FormControl("", Validators.required);
+    if(this.userid > 0) {
+      this.name = new FormControl("", [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(this.maxNameLength)
+      ]);
+      this.title = new FormControl("", [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(this.maxTitleLength)
+      ]);
+      this.description = new FormControl("", [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(this.maxDescriptionLength)
+      ]);
+    }
+    else{
+      this.forename = new FormControl("", [
+        Validators.required,
+        Validators.minLength(1)
+      ]);
+      this.surname = new FormControl("", [
+        Validators.required,
+        Validators.minLength(1)
+      ]);
+      this.email = new FormControl("", [
+        Validators.required,
+        Validators.minLength(1)
+      ]);
+      this.password = new FormControl("", [
+        Validators.required,
+        Validators.minLength(1)
+      ]);
+    }
   }
 
   createForm() {
-    this.treeForm = new FormGroup({
-      name: this.name,
-      title: this.title,
-      description: this.description
-    });
+    if(this.userid > 0) {
+      this.treeForm = new FormGroup({
+        name: this.name,
+        title: this.title,
+        description: this.description
+      });
+    }
+    else{
+      this.treeForm = new FormGroup({
+        forename: this.forename,
+        surname: this.surname,
+        email: this.email,
+        password: this.password
+      });
+    }
   }
 
   addPath(event: any, item: string): void {
@@ -434,6 +551,10 @@ export class TreeDynamic implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+
+    if (this.signupSubscription) {
+      this.signupSubscription.unsubscribe();
+    }
 
   }
 
