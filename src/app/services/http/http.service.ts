@@ -9,6 +9,9 @@ import { environment } from '../../../environments/environment';
 export class HttpService implements OnInit, OnDestroy { 
   
   port: string = '';
+  signUpValidated: number = 0;
+  cfid: number = 0;
+  cftoken: string = '';
   ajaxUrl: string = '';
   subjectImagePath: Subject<any> = new Subject<any>();
   scrollCallbackData: Subject<any> = new Subject<any>();
@@ -26,6 +29,12 @@ export class HttpService implements OnInit, OnDestroy {
 
     this.ajaxUrl = environment.host + this.port + '/' + environment.cf_dir;
 
+    this.signUpValidated = this.getUrlParameter('signUpValidated');
+
+    this.cfid = this.getUrlParameter('cfid');
+
+    this.cftoken = this.getUrlParameter('cftoken');
+
   }
 
   ngOnInit() {
@@ -38,13 +47,27 @@ export class HttpService implements OnInit, OnDestroy {
       surname: formData['surname'],
       email: formData['email'],
       password: formData['password'],
-      userToken: formData['userToken']
+      userToken: formData['userToken'],
+      cfid: this.cfid,
+      cftoken: this.cftoken
     };
     const requestHeaders = new HttpHeaders().set('Content-Type', 'application/json');
     const headers = {
       headers: requestHeaders
     };
     return this.http.post(this.ajaxUrl + '/sign-up-datasource.cfm', body, headers);
+  }
+
+  fetchLogin(formData: any): Observable<any> {
+    const body = {
+      email: formData['email'],
+      password: formData['password']
+    };
+    const requestHeaders = new HttpHeaders().set('Content-Type', 'application/json');
+    const headers = {
+      headers: requestHeaders
+    };
+    return this.http.post(this.ajaxUrl + '/oauth-datasource.cfm', body, headers);
   }
 
   fetchDirectoryTree(): Observable<any> {

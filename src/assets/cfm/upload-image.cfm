@@ -2,7 +2,7 @@
 <cfheader name="Access-Control-Allow-Origin" value="#request.ngAccessControlAllowOrigin#" />
 <cfheader name="Access-Control-Allow-Headers" value="file-name, image-path, name, title, description, file-extension, user-token, content-type" />
 
-<cfparam name="uploadfolder" default="#request.absoluteBaseUrl#/angular/material/ngMat01/src/assets/cfm" />
+<cfparam name="uploadfolder" default="#request.uploadfolder#" />
 <cfparam name="extensions" default="gif,png,jpg,jpeg" />
 <cfparam name="timestamp" default="#DateFormat(Now(),'yyyymmdd')##TimeFormat(Now(),'HHmmss')#" />
 <cfparam name="fileid" default="#CreateUUID()#" />

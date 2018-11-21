@@ -35,8 +35,8 @@
 
     <div class="form-field-text">
 
-        <div [hidden]="!hasError" class="alert alert-danger" [innerHtml]="safeHtml">
-        </div>
+      <div [hidden]="!hasError" class="alert alert-danger" [innerHtml]="safeHtml">
+      </div>
       
       <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
@@ -73,13 +73,15 @@
 
 <app-upload *ngIf="userid > 0"></app-upload>
 
-<form novalidate [formGroup]="treeForm" *ngIf="userid == 0">
+<form novalidate [formGroup]="signUpForm" *ngIf="userid == 0 && signUpValidated == 0">
 
   <div class="form-field-container">
 
     <div class="form-field-legend">Sign up</div>
 
     <div class="form-field-text">
+
+
 
       <mat-form-field class="example-full-width">
         <input matInput placeholder="First Name" value="" formControlName="forename" required>
@@ -116,3 +118,43 @@
   </div>
 
 </form>
+
+<form novalidate [formGroup]="loginForm" *ngIf="userid == 0 && signUpValidated == 1">
+
+  <div class="form-field-container">
+
+    <div class="form-field-legend">Login</div>
+
+    <div class="form-field-text">
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="E-mail" value="" formControlName="email" type="email" required>
+      </mat-form-field><br />
+      <div [hidden]="email.valid || email.pristine" class="alert alert-danger">
+        E-mail is required
+      </div><br />
+
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="Password" value="" formControlName="password" type="password" required>
+      </mat-form-field><br />
+      <div [hidden]="password.valid || password.pristine" class="alert alert-danger">
+        Password is required
+      </div><br />
+
+      <button mat-raised-button (click)="loginFormSubmit()" [disabled]="!isLoginValid">Submit</button>
+
+    </div>
+
+  </div>
+
+</form>
+
+<div class="form-field-container">
+
+  <div class="form-field-text" *ngIf="signUpResponseDo">
+    Please check your e-mail to validate your sign up
+  </div>
+
+</div>
+
+

@@ -5,7 +5,7 @@
 <cfparam name="startrow" default="1" />
 <cfparam name="endrow" default="#request.batch#" />
 
-<cfparam name="uploadfolder" default="#request.absoluteBaseUrl#/angular/material/ngMat01/src/assets/cfm" />
+<cfparam name="uploadfolder" default="#request.uploadfolder#" />
 <cfparam name="timestamp" default="#DateFormat(Now(),'yyyymmdd')##TimeFormat(Now(),'HHmmss')#" />
 <cfparam name="data" default="" />
 

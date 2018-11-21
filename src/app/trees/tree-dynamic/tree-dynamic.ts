@@ -175,6 +175,8 @@ export class TreeDynamic implements OnInit, OnDestroy {
   selectedFile: File;
   directorySelected: string;
   treeForm: FormGroup;
+  signUpForm: FormGroup;
+  loginForm: FormGroup;
   name: FormControl;
   maxNameLength: number = 20;
   title: FormControl;
@@ -197,8 +199,11 @@ export class TreeDynamic implements OnInit, OnDestroy {
   hasChild = (_: number, _nodeData: DynamicFlatNode) => _nodeData.expandable;
   isMobile: boolean = false;
   hasError: boolean = false;
+  signUpResponseDo: boolean = false;
   safeHtml: SafeHtml;
   isSignUpValid: boolean = false;
+  isLoginValid: boolean = false;
+  signUpValidated: number = 0;
   signupSubscription: Subscription;
 
   userid: number = 0;
@@ -223,6 +228,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.dataSource = new DynamicDataSource(this.treeControl, database);
     this.dataSource.data = database.initialData();
     this.isMobile = this.deviceDetectorService.isMobile();
+    this.signUpValidated = this.httpService.signUpValidated;
 
   }
 
@@ -231,96 +237,118 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.createFormControls();
     this.createForm();
 
-    this.name.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(name => {
-        if(this.debug) {
-          console.log('name: ',name);
-        }
-        this.formData['name'] = name;
-        this.httpService.subjectImagePath.next(this.formData);
-      });
+    if(this.treeForm) {
 
-    this.title.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(title => {
-        if(this.debug) {
-          console.log('title: ',title);
-        }
-        this.formData['title'] = title;
-        this.httpService.subjectImagePath.next(this.formData);
-      });
+      this.name.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe(name => {
+          if(this.debug) {
+            console.log('name: ',name);
+          }
+          this.formData['name'] = name;
+          this.httpService.subjectImagePath.next(this.formData);
+        });
 
-      this.description.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(description => {
-        if(this.debug) {
-          console.log('description: ',description);
-        }
-        this.formData['description'] = description;
-        this.httpService.subjectImagePath.next(this.formData);
-      });
+      this.title.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe(title => {
+          if(this.debug) {
+            console.log('title: ',title);
+          }
+          this.formData['title'] = title;
+          this.httpService.subjectImagePath.next(this.formData);
+        });
 
-      this.forename.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(forename => {
-        if(this.debug) {
-          console.log('forename: ',forename);
-        }
-        this.formData['forename'] = forename;
-        this.isSignUpValid = this.isSignUpFormValid();
-      });
+        this.description.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe(description => {
+          if(this.debug) {
+            console.log('description: ',description);
+          }
+          this.formData['description'] = description;
+          this.httpService.subjectImagePath.next(this.formData);
+        });
 
-      this.surname.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(surname => {
-        if(this.debug) {
-          console.log('surname: ',surname);
-        }
-        this.formData['surname'] = surname;
-        this.isSignUpValid = this.isSignUpFormValid();
-      });
+      }
 
-      this.email.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(email => {
-        if(this.debug) {
-          console.log('email: ',email);
-        }
-        this.formData['email'] = email;
-        this.isSignUpValid = this.isSignUpFormValid();
-      });
+      if(this.signUpForm) {
 
-      this.password.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(password => {
-        if(this.debug) {
-          console.log('password: ',password);
-        }
-        this.formData['password'] = password;
-        this.isSignUpValid = this.isSignUpFormValid();
-      });
+        this.forename.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe(forename => {
+          if(this.debug) {
+            console.log('forename: ',forename);
+          }
+          this.formData['forename'] = forename;
+          this.isSignUpValid = this.isSignUpFormValid();
+        });
+
+        this.surname.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe(surname => {
+          if(this.debug) {
+            console.log('surname: ',surname);
+          }
+          this.formData['surname'] = surname;
+          this.isSignUpValid = this.isSignUpFormValid();
+        });
+
+      }
+
+      if(this.signUpForm || this.loginForm) {
+
+        this.email.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe(email => {
+          if(this.debug) {
+            console.log('email: ',email);
+          }
+          this.formData['email'] = email;
+          if(this.signUpForm) {
+            this.isSignUpValid = this.isSignUpFormValid();
+          }
+          else{
+            this.isLoginValid = this.isLoginFormValid();
+          }
+        });
+
+        this.password.valueChanges
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged()
+        )
+        .subscribe(password => {
+          if(this.debug) {
+            console.log('password: ',password);
+          }
+          this.formData['password'] = password;
+          if(this.signUpForm) {
+            this.isSignUpValid = this.isSignUpFormValid();
+          }
+          else{
+            this.isLoginValid = this.isLoginFormValid();
+          }
+        });
+
+      }
 
       this.uploadService.subscriptionImageError.subscribe( (data: any) => {
         if(this.debug) {
@@ -377,10 +405,33 @@ export class TreeDynamic implements OnInit, OnDestroy {
 
   private processSignUpData = (data) => {
     console.log('processSignUpData: data',data);
+    this.signUpResponseDo = true;
+  }
+
+  loginFormSubmit() {
+    const body = {
+      email: this.email.value,
+      password: this.password.value
+    };
+    console.log('login: body',body);
+    this.signupSubscription = this.httpService.fetchLogin(body).do(this.processLoginData).subscribe();
+  }
+
+  private processLoginData = (data) => {
+    console.log('processLoginData: data',data);
+    this.userid = data['userid'];
+    if(this.userid > 0) {
+      this.createFormControls();
+      this.createForm();
+    }
   }
 
   isSignUpFormValid(): boolean {
     return this.forename.value != '' && this.surname.value != '' && this.email.value != '' && this.password.value != '' ? true : false;
+  }
+
+  isLoginFormValid(): boolean {
+    return this.email.value != '' && this.password.value != '' ? true : false;
   }
 
   toggleError(error: string) {
@@ -414,14 +465,16 @@ export class TreeDynamic implements OnInit, OnDestroy {
       ]);
     }
     else{
-      this.forename = new FormControl("", [
-        Validators.required,
-        Validators.minLength(1)
-      ]);
-      this.surname = new FormControl("", [
-        Validators.required,
-        Validators.minLength(1)
-      ]);
+      if(this.userid == 0 && this.signUpValidated == 0) {
+        this.forename = new FormControl("", [
+          Validators.required,
+          Validators.minLength(1)
+        ]);
+        this.surname = new FormControl("", [
+          Validators.required,
+          Validators.minLength(1)
+        ]);
+      }
       this.email = new FormControl("", [
         Validators.required,
         Validators.minLength(1)
@@ -442,13 +495,24 @@ export class TreeDynamic implements OnInit, OnDestroy {
       });
     }
     else{
-      this.treeForm = new FormGroup({
-        forename: this.forename,
-        surname: this.surname,
-        email: this.email,
-        password: this.password
-      });
+      if(this.userid == 0 && this.signUpValidated == 0) {
+        this.signUpForm = new FormGroup({
+          forename: this.forename,
+          surname: this.surname,
+          email: this.email,
+          password: this.password
+        });
+      }
+      else{
+        this.loginForm = new FormGroup({
+          email: this.email,
+          password: this.password
+        });
+      }
     }
+    console.log('this.treeForm ',this.treeForm);
+    console.log('this.signUpForm ',this.signUpForm);
+    console.log('this.loginForm ',this.loginForm);
   }
 
   addPath(event: any, item: string): void {

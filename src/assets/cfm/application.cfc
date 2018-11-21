@@ -82,11 +82,13 @@
 			request.absoluteBaseUrl = "http://" & CGI.HTTP_HOST;
 			request.ngAccessControlAllowOrigin = request.absoluteBaseUrl;
 			request.ngIframeSrc = request.ngAccessControlAllowOrigin & "/photo-gallery/";
+			request.uploadfolder = request.ngIframeSrc & "assets/cfm";
 		  if(IsLocalHost(CGI.REMOTE_ADDR)){
 				local.host = ListAppend(local.host,local.ngport,":");
 				request.cfport = ListLast(CGI.HTTP_HOST,":");
 				request.ngAccessControlAllowOrigin = "http://" & local.host;
 				request.ngIframeSrc = request.ngAccessControlAllowOrigin;
+				request.uploadfolder = request.absoluteBaseUrl & "/angular/material/ngMat01/src/assets/cfm";
 		  }		  
 		  request.batch = 4;
 		  
