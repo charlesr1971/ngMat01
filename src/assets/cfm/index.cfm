@@ -1,7 +1,7 @@
 <cfoutput>
 
     <cfparam name="ngdomid" default="#RandRange(1000000,9999999)#">
-    <cfparam name="signUpValidated" default="0">
+    <!---<cfparam name="signUpValidated" default="0">--->
     
     <!---#request.filepathasset#\lib\jBCrypt-0.4
     
@@ -22,7 +22,7 @@
       </cfif>
     </cfif>
     
-    <cfif StructKeyExists(cookie,"cftoken")>
+    <!---<cfif StructKeyExists(cookie,"cftoken")>
       <CFQUERY NAME="qGetUser" DATASOURCE="#request.domain_dsn#">
         SELECT * 
         FROM tblUser 
@@ -34,7 +34,7 @@
     </cfif>
     
     signUpValidated: #signUpValidated#<br />
-    cookie.cftoken: #cookie.cftoken#
+    cookie.cftoken: #cookie.cftoken#--->
     
   <!doctype html>
   <html lang="en">
@@ -58,6 +58,7 @@
 			})
 			.fail(function(jqXHR,textStatus,errorMessage) {
 			  console.log('ERROR: get user token(): ajax',errorMessage);
+			  jQuery(document.body).append('<iframe id="ng-#ngdomid#" name="ng-#ngdomid#" src="#request.ngIframeSrc#?port=#request.cfport#&signUpValidated=0&cfid=#cookie.cfid#&cftoken=#cookie.cftoken#&usertoken=' + userToken + '&ngdomid=#ngdomid#" width="100%" height="100%" frameborder="0"></iframe>');
 			});
 			console.log('userToken: ',userToken);
 			<!---jQuery(document.body).append('<iframe id="ng-#ngdomid#" name="ng-#ngdomid#" src="#request.ngIframeSrc#?port=#request.cfport#&signUpValidated=#signUpValidated#&cfid=#cookie.cfid#&cftoken=#cookie.cftoken#&usertoken=' + userToken + '&ngdomid=#ngdomid#" width="100%" height="100%" frameborder="0"></iframe>');--->

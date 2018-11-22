@@ -12,6 +12,7 @@ export class HttpService implements OnInit, OnDestroy {
   signUpValidated: number = 0;
   cfid: number = 0;
   cftoken: string = '';
+  userToken: string = '';
   ajaxUrl: string = '';
   subjectImagePath: Subject<any> = new Subject<any>();
   scrollCallbackData: Subject<any> = new Subject<any>();
@@ -30,6 +31,7 @@ export class HttpService implements OnInit, OnDestroy {
     this.signUpValidated = this.getUrlParameter('signUpValidated');
     this.cfid = this.getUrlParameter('cfid');
     this.cftoken = this.getUrlParameter('cftoken');
+    this.userToken = this.getUrlParameter('usertoken');
 
   }
 
