@@ -16,23 +16,19 @@ export class HttpService implements OnInit, OnDestroy {
   subjectImagePath: Subject<any> = new Subject<any>();
   scrollCallbackData: Subject<any> = new Subject<any>();
   galleryPage: Subject<any> = new Subject<any>();
+  userId: Subject<any> = new Subject<any>();
 
   debug: boolean = false;
 
   constructor(private http: HttpClient) {
 
     const port = this.getUrlParameter('port');
-
     if(port > 0) {
       this.port = port;
     }
-
     this.ajaxUrl = environment.host + this.port + '/' + environment.cf_dir;
-
     this.signUpValidated = this.getUrlParameter('signUpValidated');
-
     this.cfid = this.getUrlParameter('cfid');
-
     this.cftoken = this.getUrlParameter('cftoken');
 
   }

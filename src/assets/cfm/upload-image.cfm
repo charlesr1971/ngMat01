@@ -1,6 +1,6 @@
 
 <cfheader name="Access-Control-Allow-Origin" value="#request.ngAccessControlAllowOrigin#" />
-<cfheader name="Access-Control-Allow-Headers" value="file-name, image-path, name, title, description, file-extension, user-token, content-type" />
+<cfheader name="Access-Control-Allow-Headers" value="file-name, image-path, name, title, description, file-extension, user-token, content-type, user-id" />
 
 <cfparam name="uploadfolder" default="#request.uploadfolder#" />
 <cfparam name="extensions" default="gif,png,jpg,jpeg" />
@@ -25,6 +25,7 @@
 <cfset data['content_length'] = 0>
 <cfset data['fileUuid'] = fileid>
 <cfset data['userToken'] = "">
+<cfset data['userId'] = 0>
 
 <cftry>
   <cfset data['clientfileName'] = getHttpRequestData().headers['file-name']>
@@ -36,12 +37,13 @@
   <cfset data['selectedFile'] = getHttpRequestData().content>
   <cfset data['content_length'] = getHttpRequestData().headers['content-length']>
   <cfset data['userToken'] = getHttpRequestData().headers['user-token']>
+  <cfset data['userId'] = getHttpRequestData().headers['user-id']>
   <!---<cfdump var="#getHttpRequestData()#" abort />--->
   <cfcatch>
   </cfcatch>
 </cftry>
 
-<cfif Len(Trim(data['imagePath'])) AND Len(Trim(data['fileExtension'])) AND ListFindNoCase(extensions,data['fileExtension']) AND IsBinary(data['selectedFile']) AND IsNumeric(data['content_length'])>
+<cfif Len(Trim(data['imagePath'])) AND Len(Trim(data['fileExtension'])) AND ListFindNoCase(extensions,data['fileExtension']) AND IsBinary(data['selectedFile']) AND IsNumeric(data['content_length']) AND Val(data['userId'])>
   <cfif data['content_length'] LT maxcontentlength>
     <cfset imagePath = REReplaceNoCase(data['imagePath'],"[/]+","/","ALL")>
     <cfset imageSystemPath = ReplaceNoCase(imagePath,"/","\","ALL")>
@@ -65,8 +67,8 @@
     </cfif>
     <cfset filename = fileid & "." & data['fileExtension']>
     <CFQUERY DATASOURCE="#request.domain_dsn#">
-      INSERT INTO tblFile (File_uuid,Category,Clientfilename,Filename,ImagePath,Author,Title,Description,Size,Cfid,Cftoken,User_token,Submission_date) 
-      VALUES (<cfqueryparam cfsqltype="cf_sql_varchar" value="#LCase(fileid)#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(imagePath,'/')#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#data['clientfileName']#">,<cfqueryparam cfsqltype="cf_sql_longvarchar" value="#filename#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#data['imagePath']#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#author#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#title#">,<cfqueryparam cfsqltype="cf_sql_longvarchar" value="#data['description']#">,<cfqueryparam cfsqltype="cf_sql_integer" value="#Val(data['content_length'])#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#cookie.cfid#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#cookie.cftoken#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#LCase(data['userToken'])#">,<cfqueryparam cfsqltype="cf_sql_timestamp" value="#submissiondate#">)
+      INSERT INTO tblFile (User_ID,File_uuid,Category,Clientfilename,Filename,ImagePath,Author,Title,Description,Size,Cfid,Cftoken,User_token,Submission_date) 
+      VALUES (<cfqueryparam cfsqltype="cf_sql_integer" value="#data['userId']#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#LCase(fileid)#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(imagePath,'/')#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#data['clientfileName']#">,<cfqueryparam cfsqltype="cf_sql_longvarchar" value="#filename#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#data['imagePath']#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#author#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#title#">,<cfqueryparam cfsqltype="cf_sql_longvarchar" value="#data['description']#">,<cfqueryparam cfsqltype="cf_sql_integer" value="#Val(data['content_length'])#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#cookie.cfid#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#cookie.cftoken#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#LCase(data['userToken'])#">,<cfqueryparam cfsqltype="cf_sql_timestamp" value="#submissiondate#">)
     </CFQUERY>
   <cfelse>
 	<cfset maxcontentlengthInMb = NumberFormat(maxcontentlength/1000000,".__")>

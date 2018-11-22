@@ -1,6 +1,7 @@
 import {CollectionViewer, SelectionChange} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable, OnInit, OnDestroy, Inject, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import { ActivatedRoute } from "@angular/router";
 import {BehaviorSubject, merge, Observable, Subject, Subscription} from 'rxjs';
 import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 import {map} from 'rxjs/operators';
@@ -219,8 +220,8 @@ export class TreeDynamic implements OnInit, OnDestroy {
     public el: ElementRef,
     private deviceDetectorService: DeviceDetectorService,
     private sanitizer: DomSanitizer,
-    private cookieService: CookieService
-    ) {
+    private cookieService: CookieService,
+    private route: ActivatedRoute) {
 
     this.ajaxUrl = environment.host + this.httpService.port + '/' + environment.cf_dir;
 
@@ -230,6 +231,17 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.isMobile = this.deviceDetectorService.isMobile();
     this.signUpValidated = this.httpService.signUpValidated;
 
+    this.route.params.subscribe( (params) => {
+      console.log('tree-dynamic.component: this.route.params.subscribe ',params)
+      if (params['formType'] && params['formType'] == 'login') { 
+        this.signUpValidated = 1;
+      }
+      if (params['formType'] && params['formType'] == 'logout') { 
+        this.signUpValidated = 1;
+        this.userid = 0;
+        this.httpService.userId.next(0);
+      }
+    });
   }
 
   ngOnInit() {
@@ -420,6 +432,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
   private processLoginData = (data) => {
     console.log('processLoginData: data',data);
     this.userid = data['userid'];
+    this.httpService.userId.next(this.userid);
     if(this.userid > 0) {
       this.createFormControls();
       this.createForm();
@@ -553,7 +566,8 @@ export class TreeDynamic implements OnInit, OnDestroy {
       headers: new HttpHeaders({
         'Image-path':  this.imagePath,
         'File-Extension': fileExtension,
-        'User-Token': this.userToken
+        'User-Token': this.userToken,
+        'User-Id': '' + this.userid + ''
       })
     };
 

@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from "@angular/router";
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -17,19 +18,28 @@ export class MyNavComponent implements OnInit, OnDestroy {
 
   title = environment.title;
   pages = [];
+  userid: number = 0;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
       map(result => result.matches)
     );
 
-  debug: boolean = false;
+  debug: boolean = true;
     
   constructor(private breakpointObserver: BreakpointObserver,
     private httpService: HttpService,
-    private utilsService: UtilsService) {
+    private utilsService: UtilsService,
+    private route: ActivatedRoute,
+    private router: Router) {
 
       this.fetchData();
+      this.httpService.userId.subscribe( (data: any) => {
+        if(this.debug) {
+          console.log('my-nav.component: userId: data: ',data);
+        }
+        this.userid = data;
+      });
 
   }
 
@@ -55,6 +65,14 @@ export class MyNavComponent implements OnInit, OnDestroy {
       console.log('onChange: page: ', page);
     }
     this.httpService.galleryPage.next(page);
+  }
+
+  login(): void {
+    this.router.navigate(['second-page', {formType: 'login'}]);
+  }
+
+  logout(): void {
+    this.router.navigate(['second-page', {formType: 'logout'}]);
   }
 
   ngOnDestroy() {

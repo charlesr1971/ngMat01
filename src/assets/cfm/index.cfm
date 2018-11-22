@@ -35,8 +35,40 @@
     
     signUpValidated: #signUpValidated#<br />
     cookie.cftoken: #cookie.cftoken#
+    
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <title>Photo Gallery</title>
+      <script src="../js/jquery.js" type="text/javascript"></script>
+      <script src="../js/js-cookie/src/js.cookie.js" type="text/javascript"></script>
+      <script type="text/javascript">
+		  jQuery(document).ready(function() {
+			var userToken = Cookies.get('userToken');
+			var url = "#request.uploadfolder#/user-token-datasource.cfm?t=" + Math.random() + "&usertoken" + userToken;
+			jQuery.ajax({
+			  url: url
+			})
+			.done(function(response){
+			  var obj = JSON.parse(response);
+			  console.log('getCategoryShareType(): linkedin: sdk: obj 3',obj);
+			  if(!jQuery.isEmptyObject(obj) && "signUpValidated" in obj && !isNaN(jQuery.trim(obj['signUpValidated']))){
+				jQuery(document.body).append('<iframe id="ng-#ngdomid#" name="ng-#ngdomid#" src="#request.ngIframeSrc#?port=#request.cfport#&signUpValidated=' + obj['signUpValidated'] + '&cfid=#cookie.cfid#&cftoken=#cookie.cftoken#&usertoken=' + userToken + '&ngdomid=#ngdomid#" width="100%" height="100%" frameborder="0"></iframe>');
+			  }
+			})
+			.fail(function(jqXHR,textStatus,errorMessage) {
+			  console.log('ERROR: get user token(): ajax',errorMessage);
+			});
+			console.log('userToken: ',userToken);
+			<!---jQuery(document.body).append('<iframe id="ng-#ngdomid#" name="ng-#ngdomid#" src="#request.ngIframeSrc#?port=#request.cfport#&signUpValidated=#signUpValidated#&cfid=#cookie.cfid#&cftoken=#cookie.cftoken#&usertoken=' + userToken + '&ngdomid=#ngdomid#" width="100%" height="100%" frameborder="0"></iframe>');--->
+		  });
+	  </script>
+    </head>
+    <body> 
 
-    <iframe id="ng-#ngdomid#" name="ng-#ngdomid#" src="#request.ngIframeSrc#?port=#request.cfport#&signUpValidated=#signUpValidated#&cfid=#cookie.cfid#&cftoken=#cookie.cftoken#&ngdomid=#ngdomid#" width="100%" height="100%" frameborder="0">
-    </iframe>
+      
+      
+    </body>
+  </html>
 
 </cfoutput>
