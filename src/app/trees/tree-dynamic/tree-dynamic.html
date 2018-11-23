@@ -7,10 +7,10 @@
     <div class="form-field-text">
 
       <mat-form-field class="example-full-width">
-        <input matInput placeholder="First Name" value="" formControlName="name" required>
+        <input matInput placeholder="Author" value="" formControlName="name" required>
       </mat-form-field><br />
       <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
-        First name is required and must be less than {{maxNameLength}} characters
+        Author is required and must be less than {{maxNameLength}} characters
       </div><br />
 
       <mat-form-field class="example-full-width">

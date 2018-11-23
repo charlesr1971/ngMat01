@@ -19,17 +19,17 @@
 <cfset requestBody = Trim(requestBody)>
 <cftry>
   <cfset requestBody = DeserializeJSON(requestBody)>
-  <cfset data['fileUuid'] = requestBody['id']>
+  <cfset data['fileUuid'] = LCase(requestBody['id'])>
   <cfset data['add'] = requestBody['add']>
-  <cfset data['userToken'] = requestBody['userToken']>
+  <cfset data['userToken'] = LCase(requestBody['userToken'])>
   <cfset data['allowMultipleLikesPerUser'] = requestBody['allowMultipleLikesPerUser']>
   <cfcatch>
     <cftry>
       <cfset requestBody = REReplaceNoCase(requestBody,"[\s+]"," ","ALL")>
       <cfset requestBody = DeserializeJSON(requestBody)>
-      <cfset data['fileUuid'] = requestBody['id']>
+      <cfset data['fileUuid'] = LCase(requestBody['id'])>
       <cfset data['add'] = requestBody['add']>
-      <cfset data['userToken'] = requestBody['userToken']>
+      <cfset data['userToken'] = LCase(requestBody['userToken'])>
       <cfset data['allowMultipleLikesPerUser'] = requestBody['allowMultipleLikesPerUser']>
       <cfcatch>
 		<cfset data['error'] = cfcatch.message>
@@ -65,10 +65,17 @@
       SET Likes = <cfqueryparam cfsqltype="cf_sql_integer" value="#likes#"> 
       WHERE File_uuid = <cfqueryparam cfsqltype="cf_sql_varchar" value="#data['fileUuid']#">
     </CFQUERY>
-    <CFQUERY DATASOURCE="#request.domain_dsn#">
-      INSERT INTO tblFileUser (File_uuid,User_token) 
-      VALUES (<cfqueryparam cfsqltype="cf_sql_varchar" value="#LCase(data['fileUuid'])#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#LCase(data['userToken'])#">)
+    <CFQUERY NAME="qGetUser" DATASOURCE="#request.domain_dsn#">
+      SELECT * 
+      FROM tblUser
+      WHERE User_token = <cfqueryparam cfsqltype="cf_sql_varchar" value="#data['userToken']#">
     </CFQUERY>
+    <cfif qGetUser.RecordCount>
+      <CFQUERY DATASOURCE="#request.domain_dsn#">
+        INSERT INTO tblFileUser (User_ID,File_uuid,User_token) 
+        VALUES (<cfqueryparam cfsqltype="cf_sql_integer" value="#qGetUser.User_ID#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#data['fileUuid']#">,<cfqueryparam cfsqltype="cf_sql_varchar" value="#data['userToken']#">)
+      </CFQUERY>
+    </cfif>
   <cfelse>
 	<cfset data['error'] = "Like could not be added to the database">
   </cfif>

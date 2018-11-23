@@ -16,6 +16,7 @@ import { HttpService } from '../../services/http/http.service';
 import { UploadService } from '../../upload/upload.service';
 
 import { User } from '../../user/user.model';
+import { UserService } from '../../user/user.service';
 
 import { environment } from '../../../environments/environment';
 
@@ -206,6 +207,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
   isLoginValid: boolean = false;
   signUpValidated: number = 0;
   signupSubscription: Subscription;
+  currentUser: User;
 
   userid: number = 0;
 
@@ -221,7 +223,8 @@ export class TreeDynamic implements OnInit, OnDestroy {
     private deviceDetectorService: DeviceDetectorService,
     private sanitizer: DomSanitizer,
     private cookieService: CookieService,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private userService: UserService) {
 
     this.ajaxUrl = environment.host + this.httpService.port + '/' + environment.cf_dir;
 
@@ -229,7 +232,8 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.dataSource = new DynamicDataSource(this.treeControl, database);
     this.dataSource.data = database.initialData();
     this.isMobile = this.deviceDetectorService.isMobile();
-    this.signUpValidated = this.httpService.signUpValidated;
+    //this.signUpValidated = this.httpService.signUpValidated;
+    //this.signUpValidated = this.currentUser['signUpValidated'];
 
     this.route.params.subscribe( (params) => {
       console.log('tree-dynamic.component: this.route.params.subscribe ',params)
@@ -246,8 +250,15 @@ export class TreeDynamic implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    this.createFormControls();
-    this.createForm();
+    this.userService.currentUser.subscribe( (user: User) => {
+      this.currentUser = user;
+      this.signUpValidated = this.currentUser['signUpValidated'];
+      this.createFormControls();
+      this.createForm();
+      //if(this.debug) {
+        console.log('tree-dynamic: this.currentUser: ',this.currentUser);
+      //}
+    });
 
     if(this.treeForm) {
 
@@ -384,13 +395,11 @@ export class TreeDynamic implements OnInit, OnDestroy {
             console.log('tree.dynamic: remove image');
           }
         }
-        
         this.renderer.appendChild(uploadedImageContainer,img);
         TweenMax.fromTo("#uploadedImage", 1, {scale:0, ease:Elastic.easeOut, opacity: 0}, {scale:1, ease:Elastic.easeOut, opacity: 1});
         if(this.debug) {
           console.log('tree.dynamic: add image');
         }
-
       });
 
       if(this.cookieService.check('userToken')) {
@@ -417,6 +426,19 @@ export class TreeDynamic implements OnInit, OnDestroy {
 
   private processSignUpData = (data) => {
     console.log('processSignUpData: data',data);
+    const user: User = new User({
+      userid: data['userid'],
+      email: data['email'],
+      salt: data['salt'],
+      password: data['password'],
+      forename: data['forename'],
+      surname: data['surname'],
+      userToken: data['userToken'],
+      signUpToken: data['signUpToken'],
+      signUpValidated: data['signUpValidated'],
+      createdAt: data['createdat']
+    });
+    this.userService.setCurrentUser(user);
     this.signUpResponseDo = true;
   }
 
@@ -460,7 +482,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.surname = new FormControl("", Validators.required);
     this.email = new FormControl("", Validators.required);
     this.password = new FormControl("", Validators.required);
-    if(this.userid > 0) {
+    if(this.userid > 0 && this.signUpValidated == 1) {
       this.name = new FormControl("", [
         Validators.required,
         Validators.minLength(1),
@@ -567,13 +589,15 @@ export class TreeDynamic implements OnInit, OnDestroy {
         'Image-path':  this.imagePath,
         'File-Extension': fileExtension,
         'User-Token': this.userToken,
-        'User-Id': '' + this.userid + ''
+        'User-Id': '' + this.userid + '',
+        'Cfid': '' + this.httpService.cfid + '',
+        'Cftoken': this.httpService.cftoken
       })
     };
 
-    if(this.debug) {
+    //if(this.debug) {
       console.log('onUpload: httpOptions: ',httpOptions);
-    }
+    //}
 
     this.http.post(this.ajaxUrl + '/upload-image.cfm', this.selectedFile, httpOptions).pipe(map(
       (res: Response) => {

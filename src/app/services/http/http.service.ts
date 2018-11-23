@@ -1,7 +1,12 @@
 import { Injectable, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+import { User } from '../../user/user.model';
+import { UserService } from '../../user/user.service';
+
+import { CookieService } from 'ngx-cookie-service';
 
 import { environment } from '../../../environments/environment';
 
@@ -12,16 +17,19 @@ export class HttpService implements OnInit, OnDestroy {
   signUpValidated: number = 0;
   cfid: number = 0;
   cftoken: string = '';
-  userToken: string = '';
+  //userToken: string = '';
   ajaxUrl: string = '';
   subjectImagePath: Subject<any> = new Subject<any>();
   scrollCallbackData: Subject<any> = new Subject<any>();
   galleryPage: Subject<any> = new Subject<any>();
   userId: Subject<any> = new Subject<any>();
+  userSubscription: Subscription;
 
   debug: boolean = false;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+    private userService: UserService,
+    private cookieService: CookieService) {
 
     const port = this.getUrlParameter('port');
     if(port > 0) {
@@ -31,7 +39,13 @@ export class HttpService implements OnInit, OnDestroy {
     this.signUpValidated = this.getUrlParameter('signUpValidated');
     this.cfid = this.getUrlParameter('cfid');
     this.cftoken = this.getUrlParameter('cftoken');
-    this.userToken = this.getUrlParameter('usertoken');
+    //this.userToken = this.getUrlParameter('usertoken');
+
+    const body = {
+      userToken: this.cookieService.get('userToken')
+    };
+
+    this.userSubscription = this.fetchUser(body).do(this.processUserData).subscribe();
 
   }
 
@@ -54,6 +68,36 @@ export class HttpService implements OnInit, OnDestroy {
       headers: requestHeaders
     };
     return this.http.post(this.ajaxUrl + '/sign-up-datasource.cfm', body, headers);
+  }
+
+  private processUserData = (data) => {
+    //if(this.debug) {
+      console.log('http.service: processUserData: data ',data);
+    //}
+    const user: User = new User({
+      userid: data['userid'],
+      email: data['email'],
+      salt: data['salt'],
+      password: data['password'],
+      forename: data['forename'],
+      surname: data['surname'],
+      userToken: data['userToken'],
+      signUpToken: data['signUpToken'],
+      signUpValidated: data['signUpValidated'],
+      createdAt: data['createdat']
+    });
+    this.userService.setCurrentUser(user);
+  }
+
+  fetchUser(data: any): Observable<any> {
+    const body = {
+      userToken: data['userToken'],
+    };
+    const requestHeaders = new HttpHeaders().set('Content-Type', 'application/json');
+    const headers = {
+      headers: requestHeaders
+    };
+    return this.http.post(this.ajaxUrl + '/user-datasource.cfm', body, headers);
   }
 
   fetchLogin(formData: any): Observable<any> {
@@ -111,7 +155,11 @@ export class HttpService implements OnInit, OnDestroy {
   };
 
   ngOnDestroy() {
-    
+
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+
   }
 
   

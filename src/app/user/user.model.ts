@@ -12,6 +12,7 @@ export class User {
   surname: string;
   userToken: string;
   signUpToken: string;
+  signUpValidated: number;
   createdAt: string;
 
   constructor(obj?: any) {
@@ -24,6 +25,7 @@ export class User {
     this.surname = obj && obj.surname || null;
     this.userToken = obj && obj.userToken || null;
     this.signUpToken = obj && obj.signUpToken || null;
+    this.signUpValidated = obj && obj.signUpValidated || 0;
     this.createdAt = obj && obj.createdAt || null;
 
   }

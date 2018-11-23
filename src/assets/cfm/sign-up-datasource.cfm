@@ -22,6 +22,7 @@
 <cfset data['cfid'] = cookie.cfid>
 <cfset data['cftoken'] = cookie.cftoken>
 <cfset data['signuptoken'] = signuptoken>
+<cfset data['signUpValidated'] = 0>
 <cfset data['createdat'] = "">
 <cfset data['error'] = "">
 

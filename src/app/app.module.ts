@@ -28,6 +28,8 @@ import { ImageComponent } from './image/image.component';
 import { HttpService } from './services/http/http.service';
 import { UtilsService } from './services/utils/utils.service';
 import { CookieService } from 'ngx-cookie-service';
+import { UserService } from './user/user.service';
+
 import { RouterModule, Routes } from '@angular/router';
 import { TreeDynamic } from './trees/tree-dynamic/tree-dynamic';
 import { PathFormatPipe } from './pipes/path-format/path-format.pipe';
@@ -94,7 +96,8 @@ const appRoutes: Routes = [
   providers: [
     HttpService,
     UtilsService,
-    CookieService
+    CookieService,
+    UserService
   ],
   bootstrap: [AppComponent]
 })
