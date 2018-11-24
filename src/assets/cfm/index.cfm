@@ -23,6 +23,6 @@
       </cfif>
     </cfif>
     
-    <iframe id="ng-#ngdomid#" name="ng-#ngdomid#" src="#request.ngIframeSrc#index.html?port=#request.cfport#&cfid=#cookie.cfid#&cftoken=#cookie.cftoken#&ngdomid=#ngdomid#" width="100%" height="100%" frameborder="0"></iframe>
+    <iframe id="ng-#ngdomid#" name="ng-#ngdomid#" src="#request.ngIframeSrc#?port=#request.cfport#&cfid=#cookie.cfid#&cftoken=#cookie.cftoken#&ngdomid=#ngdomid#" width="100%" height="100%" frameborder="0"></iframe>
 
 </cfoutput>

@@ -60,6 +60,13 @@
     <cfset password = "">
   </cfif>
   <cfset hashmatched = HashMatched(password,hashencryptedstring,request.lckbcryptlib)>
+  <!---<cfoutput>
+    clear text: #data['password']#<br />
+    password: #password#<br />
+    hashencryptedstring: #hashencryptedstring#<br />
+    salt: #salt#<br />
+    hashmatched: #hashmatched#<br />
+  </cfoutput>--->
   <CFQUERY NAME="qGetUser" DATASOURCE="#request.domain_dsn#">
     SELECT * 
     FROM tblUser 

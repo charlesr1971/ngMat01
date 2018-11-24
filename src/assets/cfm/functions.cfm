@@ -290,7 +290,7 @@
 	  if(ISOBJECT(arguments.object)) {
 		try{
 		  result = arguments.object.checkpw(arguments.string,arguments.hashed);
-		  if(CompareNoCase(result,"Yes") EQ 0){
+		  if(CompareNoCase(result,"Yes") EQ 0 || (IsBoolean(result) AND result)){
 			result = true;
 		  }
 		  else{
