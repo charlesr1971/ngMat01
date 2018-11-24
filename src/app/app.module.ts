@@ -11,7 +11,6 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule, MatGridListModule, MatCardModule, MatMenuModule, MatTableModule, MatPaginatorModule, MatSortModule, MatTreeModule, MatProgressBarModule, MatInputModule, MatSelectModule } from '@angular/material';
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-//import { ShareModule } from '@ngx-share/core';
 import { ShareButtonsModule } from '@ngx-share/buttons';
 
 import { AppComponent } from './app.component';
@@ -89,7 +88,6 @@ const appRoutes: Routes = [
     ImageLazyLoadModule,
     LightboxModule,
     FontAwesomeModule,
-    //ShareModule.forRoot(),
     ShareButtonsModule.forRoot()
   ],
   entryComponents: [DialogComponent], // Add the DialogComponent as entry component

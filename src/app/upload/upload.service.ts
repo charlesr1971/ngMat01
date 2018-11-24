@@ -16,7 +16,7 @@ export class UploadService {
   title: string;
   description: string;
   userToken: string = '';
-  cfid: number = 0;
+  cfid: string = '';
   cftoken: string = '';
   ajaxUrl: string = '';
 
@@ -41,7 +41,7 @@ export class UploadService {
       this.userToken = data['userToken'];
     });
 
-    this.cfid = this.httpService.cfid;
+    this.cfid = '' + this.httpService.cfid + '';
     this.cftoken = this.httpService.cftoken;
 
   }
@@ -55,39 +55,40 @@ export class UploadService {
       const formData: FormData = new FormData();
       formData.append('file', file, file.name);
 
-      //if(this.debug) {
+      if(this.debug) {
         console.log('upload: file ',file);
-      //}
+      }
 
-      let fileExtension: any = file.type.split("/");
-      fileExtension = Array.isArray(fileExtension) ? fileExtension[fileExtension.length-1] : "";
+      let fileExtension: any = file.type.split('/');
+      fileExtension = Array.isArray(fileExtension) ? fileExtension[fileExtension.length-1] : '';
 
-      console.log('upload: fileExtension ',fileExtension);
-
-      console.log('upload: this.name ',this.name);
-      console.log('upload: this.title ',this.title);
-      console.log('upload: fileExtension ',fileExtension);
-      console.log('upload: this.description ',this.description);
-      console.log('upload: this.userToken ',this.userToken);
+      if(this.debug) {
+        console.log('upload: fileExtension ',fileExtension);
+        console.log('upload: this.name ',this.name);
+        console.log('upload: this.title ',this.title);
+        console.log('upload: fileExtension ',fileExtension);
+        console.log('upload: this.description ',this.description);
+        console.log('upload: this.userToken ',this.userToken);
+      }
 
       const httpOptions = {
         reportProgress: true,
         headers: new HttpHeaders({
-          'File-Name': file.name,
-          'Image-Path': this.imagePath,
-          'Name': this.name,
-          'Title': this.title,
-          'Description': this.description,
-          'File-Extension': fileExtension,
-          'User-Token': this.userToken/* ,
-          'Cfid': this.cfid,
-          'Cftoken': this.cftoken */
+          'File-Name': file.name || '',
+          'Image-Path': this.imagePath || '',
+          'Name': this.name || '',
+          'Title': this.title || '',
+          'Description': this.description || '',
+          'File-Extension': fileExtension || '',
+          'User-Token': this.userToken || '',
+          'Cfid': this.cfid || '',
+          'Cftoken': this.cftoken || ''
         })
       };
 
-      //if(this.debug) {
+      if(this.debug) {
         console.log('upload: httpOptions ',httpOptions);
-      //}
+      }
 
       // create a http-post request and pass the form
       // tell it to report the upload progress
@@ -115,11 +116,11 @@ export class UploadService {
             console.log('upload: event ',event);
           }
 
-          if('error' in event.body && event.body['error'] != '') {
+          if('error' in event.body && event.body['error'] !== '') {
             this.subscriptionImageError.next(event.body['error']);
           }
           else{
-            if('imagePath' in event.body && event.body['imagePath'] != '') {
+            if('imagePath' in event.body && event.body['imagePath'] !== '') {
               this.subscriptionImageUrl.next(this.ajaxUrl + '/' + event.body['imagePath']);
             }
           }

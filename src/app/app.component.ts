@@ -14,7 +14,7 @@ import { environment } from '../environments/environment';
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-  title = environment.title;
+  title: string = environment.title;
   cssClassName: string = '';
   debug: boolean = false;
 
@@ -29,7 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
             console.log((<NavigationEnd>event).url);
           }
           this.cssClassName = 'first-page';
-          if((<NavigationEnd>event).url.indexOf('?') == -1){
+          if((<NavigationEnd>event).url.indexOf('?') === -1){
             this.cssClassName = this.buildCssClassName((<NavigationEnd>event).url);
           }
           if(this.debug) {
@@ -43,10 +43,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     
-    if(!this.cookieService.check('userToken') || (this.cookieService.check('userToken') && this.cookieService.get('userToken') == '')) {
+    if(!this.cookieService.check('userToken') || (this.cookieService.check('userToken') && this.cookieService.get('userToken') === '')) {
       this.cookieService.set('userToken', uuid());
       if(this.debug) {
-        console.log("app.component: this.cookieService.get('userToken')",this.cookieService.get('userToken'));
+        console.log('app.component: this.cookieService.get("userToken")',this.cookieService.get('userToken'));
       }
     }
 

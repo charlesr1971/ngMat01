@@ -37,20 +37,20 @@ export class DialogComponent implements OnInit {
     
   }
 
-  onFilesAdded() {
+  onFilesAdded(): void {
     const files: { [key: string]: File } = this.file.nativeElement.files;
-    for (let key in files) {
-      if (!isNaN(parseInt(key))) {
+    for (const key in files) {
+      if (!isNaN(parseInt(key,10))) {
         this.files.add(files[key]);
       }
     }
   }
 
-  addFiles() {
+  addFiles(): void {
     this.file.nativeElement.click();
   }
   
-  closeDialog() {
+  closeDialog(): any {
     // if everything was uploaded already, just close the dialog
     if (this.uploadSuccessful) {
       return this.dialogRef.close();
@@ -63,9 +63,11 @@ export class DialogComponent implements OnInit {
     this.progress = this.uploadService.upload(this.files);
   
     // convert the progress map into an array
-    let allProgressObservables = [];
-    for (let key in this.progress) {
-      allProgressObservables.push(this.progress[key].progress);
+    const allProgressObservables = [];
+    for (const key in this.progress) {
+      if (this.progress.hasOwnProperty(key)) {
+        allProgressObservables.push(this.progress[key].progress);
+      }
     }
   
     // Adjust the state variables

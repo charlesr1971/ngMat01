@@ -1,10 +1,9 @@
-import { Component, OnInit, Input, Inject, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Inject, Renderer2, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Lightbox, LightboxEvent, LIGHTBOX_EVENT } from 'angular2-lightbox';
 import { DOCUMENT } from '@angular/common';
 import { CookieService } from 'ngx-cookie-service';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-//import { ShareButtonsModule } from '@ngx-share/buttons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faFacebookSquare } from '@fortawesome/free-brands-svg-icons/faFacebookSquare';
 import { faTwitterSquare } from '@fortawesome/free-brands-svg-icons/faTwitterSquare';
@@ -21,24 +20,6 @@ declare var ease, TweenMax, TimelineMax, Elastic: any;
   selector: 'app-image',
   templateUrl: './image.component.html',
   styleUrls: ['./image.component.css'],
-  /* animations: [
-    // the fade-in/fade-out animation.
-    trigger('simpleFadeAnimation', [
-
-      // the "in" style determines the "resting" state of the element when it is visible.
-      state('in', style({opacity: 1})),
-
-      // fade in when created. this could also be written as transition('void => *')
-      transition(':enter', [
-        style({opacity: 0}),
-        animate(600 )
-      ]),
-
-      // fade out when destroyed. this could also be written as transition('void => *')
-      transition(':leave',
-        animate(600, style({opacity: 0})))
-    ])
-  ], */
   animations: [
     trigger('fadeInOutAnimation', [
         state('in', style({
@@ -54,7 +35,7 @@ declare var ease, TweenMax, TimelineMax, Elastic: any;
     ]),
   ]
 })
-export class ImageComponent implements OnInit {
+export class ImageComponent implements OnInit, OnDestroy {
 
   private album: Array<any> = [];
   private _subscription: Subscription;
@@ -115,9 +96,7 @@ export class ImageComponent implements OnInit {
   }
 
   share(event: any, id: string): void{   
-    //var el = document.querySelector('#social-media-' + id);
     this.state = this.state === 'in' ? 'out' : 'in';
-    //this.fadeInOutAnimation = !this.fadeInOutAnimation;
     event.stopPropagation();
   }
 
@@ -129,19 +108,18 @@ export class ImageComponent implements OnInit {
       if(this.debug) {
         console.log('addLike(): fetchLikes', data);
       }
-      if(data['error'] == '') {
+      if(data['error'] === '') {
         this.image.likes = this.image.likes + 1;
 
-        var el = document.querySelector('#favourite-' + this.image.id);
-        var overshoot=5;
-        var period=0.25;
+        const el = document.querySelector('#favourite-' + this.image.id);
+        const overshoot=5;
+        const period=0.25;
         TweenMax.to(el,0.5,{
           scale:0.25,
           color:this.likeColor,
           onComplete:function(){
             TweenMax.to(el,1.4,{
               scale:1,
-              //color:this.likeColor,
               ease:Elastic.easeOut,
               easeParams:[overshoot,period]
             })

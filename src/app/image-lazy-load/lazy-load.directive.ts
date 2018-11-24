@@ -12,15 +12,15 @@ export class LazyLoadDirective implements AfterViewInit {
 
   constructor(private el: ElementRef) {}
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.canLazyLoad() ? this.lazyLoadImage() : this.loadImage();
   }
 
-  private canLazyLoad() {
+  private canLazyLoad(): any {
     return window && 'IntersectionObserver' in window;
   }
 
-  private lazyLoadImage() {
+  private lazyLoadImage(): void {
     const obs = new IntersectionObserver(entries => {
       entries.forEach(({ isIntersecting }) => {
         if (isIntersecting) {
@@ -32,7 +32,7 @@ export class LazyLoadDirective implements AfterViewInit {
     obs.observe(this.el.nativeElement);
   }
 
-  private loadImage() {
+  private loadImage(): void {
     this.srcAttr = this.src;
     if(this.debug) {
       console.log('loadImage: this.srcAttr', this.srcAttr);

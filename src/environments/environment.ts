@@ -8,7 +8,7 @@ export const environment = {
   host: 'http://localhost:',
   cf_dir: 'angular/material/ngMat01/src/assets/cfm',
   allowMultipleLikesPerUser: 0,
-  title: "Photo Gallery"
+  title: 'Photo Gallery'
 };
 
 /*

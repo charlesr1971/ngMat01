@@ -1,10 +1,10 @@
-import {CollectionViewer, SelectionChange} from '@angular/cdk/collections';
-import {FlatTreeControl} from '@angular/cdk/tree';
-import {Component, Injectable, OnInit, OnDestroy, Inject, ElementRef, ViewChild, Renderer2 } from '@angular/core';
-import { ActivatedRoute } from "@angular/router";
-import {BehaviorSubject, merge, Observable, Subject, Subscription} from 'rxjs';
-import { debounceTime, distinctUntilChanged } from "rxjs/operators";
-import {map} from 'rxjs/operators';
+import { CollectionViewer, SelectionChange } from '@angular/cdk/collections';
+import { FlatTreeControl } from '@angular/cdk/tree';
+import { Component, Injectable, OnInit, OnDestroy, Inject, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BehaviorSubject, merge, Observable, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -51,7 +51,7 @@ export class DynamicDatabase  {
 
   }
 
-  fetchData() {
+  fetchData(): void {
     this.http = this.httpService.fetchDirectoryTree().subscribe( (data: any) => {
       this.dataMap = new Map<string, string[]>(data);
       if(this.debug) {
@@ -74,7 +74,7 @@ export class DynamicDatabase  {
   }
 
   pathFormat(alias: string): any {
-    let last:any = alias.split("//");
+    let last:any = alias.split('//');
     last = Array.isArray(last) ? last[last.length-1] : alias;
     return last;
   }
@@ -110,13 +110,12 @@ export class DynamicDataSource {
         this.handleTreeControl(change as SelectionChange<DynamicFlatNode>);
       }
     });
-
     return merge(collectionViewer.viewChange, this.dataChange).pipe(map(() => this.data));
   }
 
   /** Handle expand/collapse behaviors */
 
-  handleTreeControl(change: SelectionChange<DynamicFlatNode>) {
+  handleTreeControl(change: SelectionChange<DynamicFlatNode>): void {
     if (change.added) {
       change.added.forEach(node => this.toggleNode(node, true));
     }
@@ -129,7 +128,7 @@ export class DynamicDataSource {
    * Toggle the node, remove from display list
    */
 
-  toggleNode(node: DynamicFlatNode, expand: boolean) {
+  toggleNode(node: DynamicFlatNode, expand: boolean): void {
     const children = this.database.getChildren(node.item);
     const index = this.data.indexOf(node);
     if (!children || index < 0) { // If no children, or cannot find the node, no op
@@ -162,7 +161,7 @@ export class DynamicDataSource {
  */
 
 @Component({
-  selector: 'tree-dynamic',
+  selector: 'app-tree-dynamic',
   templateUrl: 'tree-dynamic.html',
   styleUrls: ['tree-dynamic.css'],
   providers: [DynamicDatabase]
@@ -196,9 +195,6 @@ export class TreeDynamic implements OnInit, OnDestroy {
 
   treeControl: FlatTreeControl<DynamicFlatNode>;
   dataSource: DynamicDataSource;
-  getLevel = (node: DynamicFlatNode) => node.level;
-  isExpandable = (node: DynamicFlatNode) => node.expandable;
-  hasChild = (_: number, _nodeData: DynamicFlatNode) => _nodeData.expandable;
   isMobile: boolean = false;
   hasError: boolean = false;
   signUpResponseDo: boolean = false;
@@ -212,6 +208,10 @@ export class TreeDynamic implements OnInit, OnDestroy {
   userid: number = 0;
 
   debug: boolean = false;
+
+  getLevel = (node: DynamicFlatNode) => node.level;
+  isExpandable = (node: DynamicFlatNode) => node.expandable;
+  hasChild = (_: number, _nodeData: DynamicFlatNode) => _nodeData.expandable;
 
   constructor(@Inject(DOCUMENT) document, 
     database: DynamicDatabase, 
@@ -232,15 +232,15 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.dataSource = new DynamicDataSource(this.treeControl, database);
     this.dataSource.data = database.initialData();
     this.isMobile = this.deviceDetectorService.isMobile();
-    //this.signUpValidated = this.httpService.signUpValidated;
-    //this.signUpValidated = this.currentUser['signUpValidated'];
 
     this.route.params.subscribe( (params) => {
-      console.log('tree-dynamic.component: this.route.params.subscribe ',params)
-      if (params['formType'] && params['formType'] == 'login') { 
+      if(this.debug) {
+        console.log('tree-dynamic.component: this.route.params.subscribe ',params);
+      }
+      if (params['formType'] && params['formType'] === 'login') { 
         this.signUpValidated = 1;
       }
-      if (params['formType'] && params['formType'] == 'logout') { 
+      if (params['formType'] && params['formType'] === 'logout') { 
         this.signUpValidated = 1;
         this.userid = 0;
         this.httpService.userId.next(0);
@@ -255,164 +255,155 @@ export class TreeDynamic implements OnInit, OnDestroy {
       this.signUpValidated = this.currentUser['signUpValidated'];
       this.createFormControls();
       this.createForm();
-      //if(this.debug) {
+      this.monitorFormValueChanges();
+      if(this.debug) {
         console.log('tree-dynamic: this.currentUser: ',this.currentUser);
-      //}
+      }
     });
 
-    if(this.treeForm) {
-
-      this.name.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe(name => {
-          if(this.debug) {
-            console.log('name: ',name);
-          }
-          this.formData['name'] = name;
-          this.httpService.subjectImagePath.next(this.formData);
-        });
-
-      this.title.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe(title => {
-          if(this.debug) {
-            console.log('title: ',title);
-          }
-          this.formData['title'] = title;
-          this.httpService.subjectImagePath.next(this.formData);
-        });
-
-        this.description.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe(description => {
-          if(this.debug) {
-            console.log('description: ',description);
-          }
-          this.formData['description'] = description;
-          this.httpService.subjectImagePath.next(this.formData);
-        });
-
-      }
-
-      if(this.signUpForm) {
-
-        this.forename.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe(forename => {
-          if(this.debug) {
-            console.log('forename: ',forename);
-          }
-          this.formData['forename'] = forename;
-          this.isSignUpValid = this.isSignUpFormValid();
-        });
-
-        this.surname.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe(surname => {
-          if(this.debug) {
-            console.log('surname: ',surname);
-          }
-          this.formData['surname'] = surname;
-          this.isSignUpValid = this.isSignUpFormValid();
-        });
-
-      }
-
-      if(this.signUpForm || this.loginForm) {
-
-        this.email.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe(email => {
-          if(this.debug) {
-            console.log('email: ',email);
-          }
-          this.formData['email'] = email;
-          if(this.signUpForm) {
-            this.isSignUpValid = this.isSignUpFormValid();
-          }
-          else{
-            this.isLoginValid = this.isLoginFormValid();
-          }
-        });
-
-        this.password.valueChanges
-        .pipe(
-          debounceTime(400),
-          distinctUntilChanged()
-        )
-        .subscribe(password => {
-          if(this.debug) {
-            console.log('password: ',password);
-          }
-          this.formData['password'] = password;
-          if(this.signUpForm) {
-            this.isSignUpValid = this.isSignUpFormValid();
-          }
-          else{
-            this.isLoginValid = this.isLoginFormValid();
-          }
-        });
-
-      }
-
-      this.uploadService.subscriptionImageError.subscribe( (data: any) => {
-        if(this.debug) {
-          console.log("tree-dynamic: subscriptionImageError: data", data);
-        }
-        this.toggleError(data);
-      });
-
-      this.uploadService.subscriptionImageUrl.subscribe( (data: any) => {
-        if(this.debug) {
-          console.log('tree.dynamic: data: ',data);
-        }
-        const uploadedImageContainer = this.uploadedImageContainer.nativeElement;
-        const img = this.renderer.createElement('img');
-        this.renderer.setAttribute(img,'src',data);
-        this.renderer.setAttribute(img,'id','uploadedImage');
-        const uploadedImage = document.getElementById('uploadedImage');
-        if(uploadedImage) {
-          this.renderer.removeChild(uploadedImageContainer,uploadedImage);
-          if(this.debug) {
-            console.log('tree.dynamic: remove image');
-          }
-        }
-        this.renderer.appendChild(uploadedImageContainer,img);
-        TweenMax.fromTo("#uploadedImage", 1, {scale:0, ease:Elastic.easeOut, opacity: 0}, {scale:1, ease:Elastic.easeOut, opacity: 1});
-        if(this.debug) {
-          console.log('tree.dynamic: add image');
-        }
-      });
-
-      if(this.cookieService.check('userToken')) {
-        this.userToken = this.cookieService.get( 'userToken' );
-      }
-
+    this.uploadService.subscriptionImageError.subscribe( (data: any) => {
       if(this.debug) {
-        console.log('this.userToken',this.userToken);
+        console.log('tree-dynamic: subscriptionImageError: data', data);
       }
+      this.toggleError(data);
+    });
+
+    this.uploadService.subscriptionImageUrl.subscribe( (data: any) => {
+      if(this.debug) {
+        console.log('tree.dynamic: data: ',data);
+      }
+      const uploadedImageContainer = this.uploadedImageContainer.nativeElement;
+      const img = this.renderer.createElement('img');
+      this.renderer.setAttribute(img,'src',data);
+      this.renderer.setAttribute(img,'id','uploadedImage');
+      const uploadedImage = document.getElementById('uploadedImage');
+      if(uploadedImage) {
+        this.renderer.removeChild(uploadedImageContainer,uploadedImage);
+        if(this.debug) {
+          console.log('tree.dynamic: remove image');
+        }
+      }
+      this.renderer.appendChild(uploadedImageContainer,img);
+      TweenMax.fromTo('#uploadedImage', 1, {scale:0, ease:Elastic.easeOut, opacity: 0}, {scale:1, ease:Elastic.easeOut, opacity: 1});
+      if(this.debug) {
+        console.log('tree.dynamic: add image');
+      }
+    });
+
+    if(this.cookieService.check('userToken')) {
+      this.userToken = this.cookieService.get( 'userToken' );
+    }
+
+    if(this.debug) {
+      console.log('this.userToken',this.userToken);
+    }
 
   }
 
-  signUpFormSubmit() {
+  monitorFormValueChanges(): void {
+    if(this.treeForm) {
+      this.name.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(name => {
+        if(this.debug) {
+          console.log('name: ',name);
+        }
+        this.formData['name'] = name;
+        this.httpService.subjectImagePath.next(this.formData);
+      });
+      this.title.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(title => {
+        if(this.debug) {
+          console.log('title: ',title);
+        }
+        this.formData['title'] = title;
+        this.httpService.subjectImagePath.next(this.formData);
+      });
+      this.description.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(description => {
+        if(this.debug) {
+          console.log('description: ',description);
+        }
+        this.formData['description'] = description;
+        this.httpService.subjectImagePath.next(this.formData);
+      });
+    }
+    if(this.signUpForm) {
+      this.forename.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(forename => {
+        if(this.debug) {
+          console.log('forename: ',forename);
+        }
+        this.formData['forename'] = forename;
+        this.isSignUpValid = this.isSignUpFormValid();
+      });
+      this.surname.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(surname => {
+        if(this.debug) {
+          console.log('surname: ',surname);
+        }
+        this.formData['surname'] = surname;
+        this.isSignUpValid = this.isSignUpFormValid();
+      });
+    }
+    if(this.signUpForm || this.loginForm) {
+      this.email.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(email => {
+        if(this.debug) {
+          console.log('email: ',email);
+        }
+        this.formData['email'] = email;
+        if(this.signUpForm) {
+          this.isSignUpValid = this.isSignUpFormValid();
+        }
+        else{
+          this.isLoginValid = this.isLoginFormValid();
+        }
+      });
+      this.password.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(password => {
+        if(this.debug) {
+          console.log('password: ',password);
+        }
+        this.formData['password'] = password;
+        if(this.signUpForm) {
+          this.isSignUpValid = this.isSignUpFormValid();
+        }
+        else{
+          this.isLoginValid = this.isLoginFormValid();
+        }
+      });
+    }
+  }
+
+  signUpFormSubmit(): void {
     const body = {
       forename: this.forename.value,
       surname: this.surname.value,
@@ -420,12 +411,16 @@ export class TreeDynamic implements OnInit, OnDestroy {
       password: this.password.value,
       userToken: this.userToken
     };
-    console.log('signUp: body',body);
+    if(this.debug) {
+      console.log('signUp: body',body);
+    }
     this.signupSubscription = this.httpService.fetchSignUp(body).do(this.processSignUpData).subscribe();
   }
 
   private processSignUpData = (data) => {
-    console.log('processSignUpData: data',data);
+    if(this.debug) {
+      console.log('processSignUpData: data',data);
+    }
     const user: User = new User({
       userid: data['userid'],
       email: data['email'],
@@ -442,86 +437,91 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.signUpResponseDo = true;
   }
 
-  loginFormSubmit() {
+  loginFormSubmit(): void {
     const body = {
       email: this.email.value,
       password: this.password.value
     };
-    console.log('login: body',body);
+    if(this.debug) {
+      console.log('login: body',body);
+    }
     this.signupSubscription = this.httpService.fetchLogin(body).do(this.processLoginData).subscribe();
   }
 
   private processLoginData = (data) => {
-    console.log('processLoginData: data',data);
+    if(this.debug) {
+      console.log('processLoginData: data',data);
+    }
     this.userid = data['userid'];
     this.httpService.userId.next(this.userid);
     if(this.userid > 0) {
       this.createFormControls();
       this.createForm();
+      this.monitorFormValueChanges();
     }
   }
 
   isSignUpFormValid(): boolean {
-    return this.forename.value != '' && this.surname.value != '' && this.email.value != '' && this.password.value != '' ? true : false;
+    return this.forename.value !== '' && this.surname.value !== '' && this.email.value !== '' && this.password.value !== '' ? true : false;
   }
 
   isLoginFormValid(): boolean {
-    return this.email.value != '' && this.password.value != '' ? true : false;
+    return this.email.value !== '' && this.password.value !== '' ? true : false;
   }
 
-  toggleError(error: string) {
+  toggleError(error: string): void {
     this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(error);
-    this.hasError = error != '' ? true : false;
+    this.hasError = error !== '' ? true : false;
   }
 
-  createFormControls() {
-    this.name = new FormControl("", Validators.required);
-    this.title = new FormControl("", Validators.required);
-    this.description = new FormControl("", Validators.required);
-    this.forename = new FormControl("", Validators.required);
-    this.surname = new FormControl("", Validators.required);
-    this.email = new FormControl("", Validators.required);
-    this.password = new FormControl("", Validators.required);
-    if(this.userid > 0 && this.signUpValidated == 1) {
-      this.name = new FormControl("", [
+  createFormControls(): void {
+    this.name = new FormControl('', Validators.required);
+    this.title = new FormControl('', Validators.required);
+    this.description = new FormControl('', Validators.required);
+    this.forename = new FormControl('', Validators.required);
+    this.surname = new FormControl('', Validators.required);
+    this.email = new FormControl('', Validators.required);
+    this.password = new FormControl('', Validators.required);
+    if(this.userid > 0 && this.signUpValidated === 1) {
+      this.name = new FormControl('', [
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(this.maxNameLength)
       ]);
-      this.title = new FormControl("", [
+      this.title = new FormControl('', [
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(this.maxTitleLength)
       ]);
-      this.description = new FormControl("", [
+      this.description = new FormControl('', [
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(this.maxDescriptionLength)
       ]);
     }
     else{
-      if(this.userid == 0 && this.signUpValidated == 0) {
-        this.forename = new FormControl("", [
+      if(this.userid === 0 && this.signUpValidated === 0) {
+        this.forename = new FormControl('', [
           Validators.required,
           Validators.minLength(1)
         ]);
-        this.surname = new FormControl("", [
+        this.surname = new FormControl('', [
           Validators.required,
           Validators.minLength(1)
         ]);
       }
-      this.email = new FormControl("", [
+      this.email = new FormControl('', [
         Validators.required,
         Validators.minLength(1)
       ]);
-      this.password = new FormControl("", [
+      this.password = new FormControl('', [
         Validators.required,
         Validators.minLength(1)
       ]);
     }
   }
 
-  createForm() {
+  createForm(): void {
     if(this.userid > 0) {
       this.treeForm = new FormGroup({
         name: this.name,
@@ -530,7 +530,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
       });
     }
     else{
-      if(this.userid == 0 && this.signUpValidated == 0) {
+      if(this.userid === 0 && this.signUpValidated === 0) {
         this.signUpForm = new FormGroup({
           forename: this.forename,
           surname: this.surname,
@@ -545,9 +545,11 @@ export class TreeDynamic implements OnInit, OnDestroy {
         });
       }
     }
-    console.log('this.treeForm ',this.treeForm);
-    console.log('this.signUpForm ',this.signUpForm);
-    console.log('this.loginForm ',this.loginForm);
+    if(this.debug) {
+      console.log('this.treeForm ',this.treeForm);
+      console.log('this.signUpForm ',this.signUpForm);
+      console.log('this.loginForm ',this.loginForm);
+    }
   }
 
   addPath(event: any, item: string): void {
@@ -571,7 +573,7 @@ export class TreeDynamic implements OnInit, OnDestroy {
     TweenMax.fromTo(gradeEl, 1, {scale:0, ease:Elastic.easeOut, opacity: 0, rotation: 1}, {scale:1, ease:Elastic.easeOut, opacity: 1, rotation: 359});
   }
 
-  previewImage(event) {
+  previewImage(event): void {
     this.selectedFile = event.target.files[0];
     if(this.debug) {
       console.log('onFileChanged: this.selectedFile: ',this.selectedFile);
@@ -579,10 +581,10 @@ export class TreeDynamic implements OnInit, OnDestroy {
     this.onUpload();
   }
 
-  onUpload() {
+  onUpload(): void {
 
-    let fileExtension: any = this.selectedFile.type.split("/");
-    fileExtension = Array.isArray(fileExtension) ? fileExtension[fileExtension.length-1] : "";
+    let fileExtension: any = this.selectedFile.type.split('/');
+    fileExtension = Array.isArray(fileExtension) ? fileExtension[fileExtension.length-1] : '';
 
     const httpOptions = {
       headers: new HttpHeaders({
@@ -595,9 +597,9 @@ export class TreeDynamic implements OnInit, OnDestroy {
       })
     };
 
-    //if(this.debug) {
+    if(this.debug) {
       console.log('onUpload: httpOptions: ',httpOptions);
-    //}
+    }
 
     this.http.post(this.ajaxUrl + '/upload-image.cfm', this.selectedFile, httpOptions).pipe(map(
       (res: Response) => {
@@ -615,40 +617,33 @@ export class TreeDynamic implements OnInit, OnDestroy {
   }
 
   pathFormat(value: any): any {
-    let last = value.split("//");
+    let last = value.split('//');
     last = Array.isArray(last) ? last[last.length-1] : value;
     return last;
   }
 
-  stringFromUTF8Array(data)
-  {
+  stringFromUTF8Array(data: any): string {
     const extraByteMap = [ 1, 1, 1, 1, 2, 2, 3, 0 ];
-    var count = data.length;
-    var str = "";
-    
-    for (var index = 0;index < count;)
-    {
+    const count = data.length;
+    var str = '';
+    for (var index = 0;index < count;) {
       var ch = data[index++];
-      if (ch & 0x80)
-      {
+      if (ch & 0x80) {
         var extra = extraByteMap[(ch >> 3) & 0x07];
-        if (!(ch & 0x40) || !extra || ((index + extra) > count))
+        if (!(ch & 0x40) || !extra || ((index + extra) > count)) {
           return null;
-        
+        }
         ch = ch & (0x3F >> extra);
-        for (;extra > 0;extra -= 1)
-        {
-          var chx = data[index++];
-          if ((chx & 0xC0) != 0x80)
+        for (;extra > 0;extra -= 1) {
+          const chx = data[index++];
+          if ((chx & 0xC0) !== 0x80) {
             return null;
-          
+          }
           ch = (ch << 6) | (chx & 0x3F);
         }
       }
-      
       str += String.fromCharCode(ch);
     }
-    
     return str;
   }
 

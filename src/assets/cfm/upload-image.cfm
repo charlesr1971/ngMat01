@@ -1,6 +1,6 @@
 
 <cfheader name="Access-Control-Allow-Origin" value="#request.ngAccessControlAllowOrigin#" />
-<cfheader name="Access-Control-Allow-Headers" value="file-name, image-path, name, title, description, file-extension, user-token, content-type, user-id" />
+<cfheader name="Access-Control-Allow-Headers" value="file-name, image-path, name, title, description, file-extension, user-token, content-type, cfid, cftoken" />
 
 <cfparam name="uploadfolder" default="#request.uploadfolder#" />
 <cfparam name="extensions" default="gif,png,jpg,jpeg" />
@@ -39,14 +39,23 @@
   <cfset data['selectedFile'] = getHttpRequestData().content>
   <cfset data['content_length'] = getHttpRequestData().headers['content-length']>
   <cfset data['userToken'] = getHttpRequestData().headers['user-token']>
-  <!---<cfset data['cfid'] = getHttpRequestData().headers['cfid']>
-  <cfset data['cftoken'] = getHttpRequestData().headers['cftoken']>--->
+  <cfset data['cfid'] = getHttpRequestData().headers['cfid']>
+  <cfset data['cftoken'] = getHttpRequestData().headers['cftoken']>
   <!---<cfdump var="#getHttpRequestData()#" abort />--->
   <cfcatch>
   </cfcatch>
 </cftry>
 
-<cfif Len(Trim(data['imagePath'])) AND Len(Trim(data['fileExtension'])) AND ListFindNoCase(extensions,data['fileExtension']) AND IsBinary(data['selectedFile']) AND IsNumeric(data['content_length']) AND Val(data['userId'])>
+<CFQUERY NAME="qGetUser" DATASOURCE="#request.domain_dsn#">
+  SELECT * 
+  FROM tblUser 
+  WHERE User_token = <cfqueryparam cfsqltype="cf_sql_varchar" value="#data['userToken']#">
+</CFQUERY>
+<cfif qGetUser.RecordCount>
+  <cfset data['userId'] = qGetUser.User_ID>
+</cfif>
+
+<cfif Len(Trim(data['imagePath'])) AND Len(Trim(data['fileExtension'])) AND ListFindNoCase(extensions,data['fileExtension']) AND IsBinary(data['selectedFile']) AND IsNumeric(data['content_length']) AND Val(data['userId']) AND Len(Trim(data['name'])) AND Len(Trim(data['title'])) AND Len(Trim(data['description']))>
   <cfif data['content_length'] LT maxcontentlength>
     <cfset imagePath = REReplaceNoCase(data['imagePath'],"[/]+","/","ALL")>
     <cfset imageSystemPath = ReplaceNoCase(imagePath,"/","\","ALL")>

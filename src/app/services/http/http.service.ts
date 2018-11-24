@@ -17,7 +17,6 @@ export class HttpService implements OnInit, OnDestroy {
   signUpValidated: number = 0;
   cfid: number = 0;
   cftoken: string = '';
-  //userToken: string = '';
   ajaxUrl: string = '';
   subjectImagePath: Subject<any> = new Subject<any>();
   scrollCallbackData: Subject<any> = new Subject<any>();
@@ -36,17 +35,13 @@ export class HttpService implements OnInit, OnDestroy {
       this.port = port;
     }
     this.ajaxUrl = environment.host + this.port + '/' + environment.cf_dir;
-    this.signUpValidated = this.getUrlParameter('signUpValidated');
     this.cfid = this.getUrlParameter('cfid');
     this.cftoken = this.getUrlParameter('cftoken');
-    //this.userToken = this.getUrlParameter('usertoken');
-
     const body = {
       userToken: this.cookieService.get('userToken')
     };
-
     this.userSubscription = this.fetchUser(body).do(this.processUserData).subscribe();
-
+    
   }
 
   ngOnInit() {
@@ -71,9 +66,9 @@ export class HttpService implements OnInit, OnDestroy {
   }
 
   private processUserData = (data) => {
-    //if(this.debug) {
+    if(this.debug) {
       console.log('http.service: processUserData: data ',data);
-    //}
+    }
     const user: User = new User({
       userid: data['userid'],
       email: data['email'],

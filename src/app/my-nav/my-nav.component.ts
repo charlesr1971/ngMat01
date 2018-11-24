@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from "@angular/router";
-import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -25,7 +25,7 @@ export class MyNavComponent implements OnInit, OnDestroy {
       map(result => result.matches)
     );
 
-  debug: boolean = true;
+  debug: boolean = false;
     
   constructor(private breakpointObserver: BreakpointObserver,
     private httpService: HttpService,
@@ -51,7 +51,7 @@ export class MyNavComponent implements OnInit, OnDestroy {
     this.httpService.fetchPages().subscribe( (data) => {
       if(!this.utilsService.isEmpty(data) && 'pages' in data) {
         for(var i = 0; i < data['pages']; i++) {
-          let obj = {};
+          const obj = {};
           obj['title'] = 'Section ' + (i + 1);
           this.pages.push(obj);
         }

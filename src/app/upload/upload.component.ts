@@ -22,15 +22,15 @@ export class UploadComponent {
         if(this.debug) {
           console.log('upload.service: data: ',data);
         }
-        if(data['imagePath'] != '' && data['name'] != '' && data['title'] != '') {
+        if(data['imagePath'] !== '' && data['name'] !== '' && data['title'] !== '') {
           this.isValid = true;
         }
       });
       
     }
 
-  public openUploadDialog() {
-    let dialogRef = this.dialog.open(DialogComponent, { width: '50%', height: '50%' });
+  public openUploadDialog(): void {
+    const dialogRef = this.dialog.open(DialogComponent, { width: '50%', height: '50%' });
     this.uploadService.subscriptionImageError.next('');
   }
 
