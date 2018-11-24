@@ -87,6 +87,9 @@
 				local.host = ListAppend(local.host,local.ngport,":");
 				request.cfport = ListLast(CGI.HTTP_HOST,":");
 				request.ngAccessControlAllowOrigin = "http://" & local.host;
+				if(ListLen(local.host,":") EQ 1){
+				  request.ngAccessControlAllowOrigin = "http://localhost";
+				}
 				request.ngIframeSrc = request.ngAccessControlAllowOrigin;
 				request.uploadfolder = request.absoluteBaseUrl & "/angular/material/ngMat01/src/assets/cfm";
 		  }		  
