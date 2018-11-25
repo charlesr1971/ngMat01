@@ -7,7 +7,7 @@
 <cfparam name="timestamp" default="#DateFormat(Now(),'yyyymmdd')##TimeFormat(Now(),'HHmmss')#" />
 <cfparam name="fileid" default="#CreateUUID()#" />
 <cfparam name="filename" default="" />
-<cfparam name="maxcontentlength" default="2500000" />
+<cfparam name="maxcontentlength" default="500000" />
 <cfparam name="submissiondate" default="#Now()#" />
 
 <cfinclude template="functions.cfm">

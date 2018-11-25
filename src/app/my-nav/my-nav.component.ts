@@ -21,9 +21,29 @@ export class MyNavComponent implements OnInit, OnDestroy {
   userid: number = 0;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
-    .pipe(
-      map(result => result.matches)
-    );
+  .pipe(
+    map(result => result.matches)
+  );
+
+  isTablet$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Tablet)
+  .pipe(
+    map(result => result.matches)
+  );
+
+  isLarge$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Large)
+  .pipe(
+    map(result => result.matches)
+  );
+
+  isMedium$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Medium)
+  .pipe(
+    map(result => result.matches)
+  );
+
+  isSmall$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Small)
+  .pipe(
+    map(result => result.matches)
+  );
 
   debug: boolean = false;
     
