@@ -69,7 +69,7 @@
   </CFQUERY>
   <cfset data['userid'] = queryInsertResult.generatedkey>
   <cfset data['createdat'] = Now()>
-  <cfmail to="#data['email']#" from="cdesign@btinternet.com" server="mail.btinternet.com" username="cdesign@btinternet.com" password="Charles581321" port="25" useSSL="no" useTLS="no" subject="Validate e-mai from Photo Gallery" type="html">
+  <cfmail to="#data['email']#" from="cdesign@btinternet.com" server="mail.btinternet.com" username="cdesign@btinternet.com" password="Charles581321" port="25" useSSL="no" useTLS="no" subject="Validate e-mail from Photo Gallery" type="html">
     <p><strong>Please validate e-mail:</strong></p>
     <a href="#uploadfolder#/index.cfm?signUpToken=#data['signuptoken']#">Validate E-mail</a>
   </cfmail>
