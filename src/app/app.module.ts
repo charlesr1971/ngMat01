@@ -34,12 +34,15 @@ import { TreeDynamic } from './trees/tree-dynamic/tree-dynamic';
 import { PathFormatPipe } from './pipes/path-format/path-format.pipe';
 import { FileSizePipe } from './pipes/file-size/file-size.pipe';
 import { InfiniteScrollerDirective } from './directives/infinite-scroller/infinite-scroller.directive';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 const appRoutes: Routes = [
-  { path: '', component: FirstPageComponent },
   { path: 'first-page', component: FirstPageComponent },
   { path: 'second-page', component: SecondPageComponent },
-  { path: 'third-page', component: ThirdPageComponent }
+  { path: 'third-page', component: ThirdPageComponent },
+  //{ path: '',   redirectTo: '/first-page', pathMatch: 'full' }
+  { path: '',   redirectTo: '/first-page', pathMatch: 'prefix' },
+  { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({
@@ -56,7 +59,8 @@ const appRoutes: Routes = [
     ImagesComponent,
     ImageComponent,
     FileSizePipe,
-    InfiniteScrollerDirective
+    InfiniteScrollerDirective,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -75,7 +79,10 @@ const appRoutes: Routes = [
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    RouterModule.forRoot(appRoutes),
+    RouterModule.forRoot(
+      appRoutes/* ,
+      { enableTracing: true } */
+    ),
     CdkTreeModule,
     MatTreeModule,
     MatProgressBarModule,

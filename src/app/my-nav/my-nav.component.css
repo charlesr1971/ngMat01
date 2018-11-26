@@ -14,3 +14,11 @@
 .mat-select {
   padding: 15px;
 }
+
+.mat-select.gallery-sections {
+  display: none;
+}
+
+.gallery-is-active + .mat-select {
+  display: inline-block;
+}

@@ -81,8 +81,9 @@
 			request.cfport = 0;
 			request.absoluteBaseUrl = "http://" & CGI.HTTP_HOST;
 			request.ngAccessControlAllowOrigin = request.absoluteBaseUrl;
-			request.ngIframeSrc = request.ngAccessControlAllowOrigin & "/photo-gallery/index.html";
+			request.ngIframeSrc = request.ngAccessControlAllowOrigin & "/photo-gallery/";
 			request.uploadfolder = request.ngIframeSrc & "assets/cfm";
+			request.ngIframeSrc = request.ngIframeSrc & "index.html";
 		  if(IsLocalHost(CGI.REMOTE_ADDR)){
 				local.host = ListAppend(local.host,local.ngport,":");
 				request.cfport = ListLast(CGI.HTTP_HOST,":");

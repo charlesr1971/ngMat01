@@ -26,7 +26,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
           if(this.debug) {
-            console.log((<NavigationEnd>event).url);
+            console.log('app.componet: (<NavigationEnd>event).url ',(<NavigationEnd>event).url);
           }
           this.cssClassName = 'first-page';
           if((<NavigationEnd>event).url.indexOf('?') === -1){
@@ -43,6 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     
+    //this.cookieService.set('userToken', "461caed9-38ab-4414-9513-c71d2040f7e3");
     if(!this.cookieService.check('userToken') || (this.cookieService.check('userToken') && this.cookieService.get('userToken') === '')) {
       this.cookieService.set('userToken', uuid());
       if(this.debug) {

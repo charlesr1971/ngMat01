@@ -238,12 +238,15 @@ export class TreeDynamic implements OnInit, OnDestroy {
         console.log('tree-dynamic.component: this.route.params.subscribe ',params);
       }
       if (params['formType'] && params['formType'] === 'login') { 
-        this.signUpValidated = 1;
+        this.signUpValidated = this.currentUser ? this.currentUser['signUpValidated'] : 1;
       }
       if (params['formType'] && params['formType'] === 'logout') { 
-        this.signUpValidated = 1;
+        this.signUpValidated = this.currentUser ? this.currentUser['signUpValidated'] : 1;
         this.userid = 0;
         this.httpService.userId.next(0);
+      }
+      if (params['formType'] && params['formType'] !== 'login' && params['formType'] && params['formType'] !== 'logout') {
+        this.signUpValidated = this.currentUser ? this.currentUser['signUpValidated'] : 0;
       }
     });
   }
